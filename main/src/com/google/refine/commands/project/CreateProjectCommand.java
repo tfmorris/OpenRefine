@@ -69,9 +69,8 @@ public class CreateProjectCommand extends Command {
         try {
             Properties parameters = ParsingUtilities.parseUrlParameters(request);
             ImportingJob job = ImportingManager.createJob();
-            JSONObject config = job.getOrCreateDefaultConfig();
             ImportingUtilities.loadDataAndPrepareJob(
-                    request, response, parameters, job, config);
+                    request, response, parameters, job);
             
             String format = parameters.getProperty("format");
             
@@ -93,10 +92,7 @@ public class CreateProjectCommand extends Command {
                            "\\t".equals(parameters.getProperty("separator"))) {
                     format = "text/line-based/*sv";
                 } else {
-                    JSONArray rankedFormats = JSONUtilities.getArray(config, "rankedFormats");
-                    if (rankedFormats != null && rankedFormats.length() > 0) {
-                        format = rankedFormats.getString(0);
-                    }
+                    format = job.getBestFormat();
                 }
                 
                 if (format == null || format.isEmpty()) {

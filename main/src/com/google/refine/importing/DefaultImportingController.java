@@ -110,16 +110,13 @@ public class DefaultImportingController implements ImportingController {
         
         job.updating = true;
         try {
-            JSONObject config = job.getOrCreateDefaultConfig();
-            if (!("new".equals(config.getString("state")))) {
-                HttpUtilities.respond(response, "error", "Job already started; cannot load more data");
+            if (!("new".equals(job.getState()))) {
+                HttpUtilities.respond(response, "error", 
+                        "Job already started; cannot load more data");
                 return;
             }
-            
-            ImportingUtilities.loadDataAndPrepareJob(
-                request, response, parameters, job, config);
-        } catch (JSONException e) {
-            throw new ServletException(e);
+            ImportingUtilities.loadDataAndPrepareJob(request, response, 
+                    parameters, job);
         } finally {
             job.touch();
             job.updating = false;
@@ -138,8 +135,7 @@ public class DefaultImportingController implements ImportingController {
         
         job.updating = true;
         try {
-            JSONObject config = job.getOrCreateDefaultConfig();
-            if (!("ready".equals(config.getString("state")))) {
+            if (!("ready".equals(job.getState()))) {
                 HttpUtilities.respond(response, "error", "Job not ready");
                 return;
             }
@@ -170,8 +166,7 @@ public class DefaultImportingController implements ImportingController {
         
         job.updating = true;
         try {
-            JSONObject config = job.getOrCreateDefaultConfig();
-            if (!("ready".equals(config.getString("state")))) {
+            if (!("ready".equals(job.getState()))) {
                 HttpUtilities.respond(response, "error", "Job not ready");
                 return;
             }
@@ -252,8 +247,7 @@ public class DefaultImportingController implements ImportingController {
         job.updating = true;
         job.touch();
         try {
-            JSONObject config = job.getOrCreateDefaultConfig();
-            if (!("ready".equals(config.getString("state")))) {
+            if (!("ready".equals(job.getState()))) {
                 HttpUtilities.respond(response, "error", "Job not ready");
                 return;
             }

@@ -96,20 +96,43 @@ public class ImportingUtilities {
         public void setProgress(String message, int percent);
         public boolean isCanceled();
     }
+
+    /**
+     * @param request
+     * @param response
+     * @param parameters
+     * @param job
+     * @param config *IGNORED*
+     * @throws IOException
+     * @throws ServletException
+     * @deprecated
+     */
+    static public void loadDataAndPrepareJob(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Properties parameters,
+            final ImportingJob job,
+            JSONObject config) throws IOException, ServletException {
+        loadDataAndPrepareJob(request, response, parameters, job);
+    }
     
     static public void loadDataAndPrepareJob(
         HttpServletRequest request,
         HttpServletResponse response,
         Properties parameters,
-        final ImportingJob job,
-        JSONObject config) throws IOException, ServletException {
+        final ImportingJob job) throws IOException, ServletException {
         
+        JSONObject config = job.getOrCreateDefaultConfig();
         JSONObject retrievalRecord = new JSONObject();
-        JSONUtilities.safePut(config, "retrievalRecord", retrievalRecord);
-        JSONUtilities.safePut(config, "state", "loading-raw-data");
-        
         final JSONObject progress = new JSONObject();
-        JSONUtilities.safePut(config, "progress", progress);
+        // TODO: This needs to be refactored to centralize manipulation and
+        // synchronization of this shared object.  Taking the minimal approach for now.
+        synchronized(config) {
+            JSONUtilities.safePut(config, "retrievalRecord", retrievalRecord);
+            JSONUtilities.safePut(config, "state", "loading-raw-data");
+
+            JSONUtilities.safePut(config, "progress", progress);
+        }
         try {
             ImportingUtilities.retrieveContentFromPostRequest(
                 request,
@@ -119,10 +142,7 @@ public class ImportingUtilities {
                 new Progress() {
                     @Override
                     public void setProgress(String message, int percent) {
-                        if (message != null) {
-                            JSONUtilities.safePut(progress, "message", message);
-                        }
-                        JSONUtilities.safePut(progress, "percent", percent);
+                        job.setProgress(percent, message, false);
                     }
                     @Override
                     public boolean isCanceled() {
@@ -131,25 +151,30 @@ public class ImportingUtilities {
                 }
             );
         } catch (Exception e) {
-            JSONUtilities.safePut(config, "state", "error");
-            JSONUtilities.safePut(config, "error", "Error uploading data");
-            JSONUtilities.safePut(config, "errorDetails", e.getLocalizedMessage());
+            synchronized (config) {
+                JSONUtilities.safePut(config, "state", "error");
+                JSONUtilities.safePut(config, "error", "Error uploading data");
+                JSONUtilities.safePut(config, "errorDetails", e.getLocalizedMessage());
+            }
             return;
         }
         
-        JSONArray fileSelectionIndexes = new JSONArray();
-        JSONUtilities.safePut(config, "fileSelection", fileSelectionIndexes);
-        
-        String bestFormat = ImportingUtilities.autoSelectFiles(job, retrievalRecord, fileSelectionIndexes);
-        bestFormat = ImportingUtilities.guessBetterFormat(job, bestFormat);
-        
-        JSONArray rankedFormats = new JSONArray();
-        ImportingUtilities.rankFormats(job, bestFormat, rankedFormats);
-        JSONUtilities.safePut(config, "rankedFormats", rankedFormats);
-        
-        JSONUtilities.safePut(config, "state", "ready");
-        JSONUtilities.safePut(config, "hasData", true);
-        config.remove("progress");
+        synchronized (config) {
+            JSONArray fileSelectionIndexes = new JSONArray();
+            JSONUtilities.safePut(config, "fileSelection", fileSelectionIndexes);
+
+            String bestFormat = ImportingUtilities.autoSelectFiles(job, retrievalRecord, 
+                    fileSelectionIndexes);
+            bestFormat = ImportingUtilities.guessBetterFormat(job, bestFormat);
+
+            JSONArray rankedFormats = new JSONArray();
+            ImportingUtilities.rankFormats(job, bestFormat, rankedFormats);
+            JSONUtilities.safePut(config, "rankedFormats", rankedFormats);
+
+            JSONUtilities.safePut(config, "state", "ready");
+            JSONUtilities.safePut(config, "hasData", true);
+            config.remove("progress");
+        }
     }
     
     static public void updateJobWithNewFileSelection(ImportingJob job, JSONArray fileSelectionArray) {

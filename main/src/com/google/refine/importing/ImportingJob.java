@@ -64,9 +64,7 @@ public class ImportingJob implements Jsonizable {
     public long lastTouched;
     public boolean updating;
     public boolean canceled;
-    
-    final private Object lock = new Object();
-    
+
     public ImportingJob(long id, File dir) {
         this.id = id;
         this.dir = dir;
@@ -80,8 +78,7 @@ public class ImportingJob implements Jsonizable {
         
         dir.mkdirs();
     }
-    
-    
+        
     public JSONObject getOrCreateDefaultConfig() {
         return config;
     }
@@ -107,6 +104,10 @@ public class ImportingJob implements Jsonizable {
     }
 
     public void setProgress(int percent, String message) {
+        setProgress(percent, message, true);
+    }
+
+    public void setProgress(int percent, String message, boolean includeStats) {
         synchronized (config) {
             JSONObject progress = JSONUtilities.getObject(config, "progress");
             if (progress == null) {
@@ -115,8 +116,12 @@ public class ImportingJob implements Jsonizable {
             }
             JSONUtilities.safePut(progress, "message", message);
             JSONUtilities.safePut(progress, "percent", percent);
-            JSONUtilities.safePut(progress, "memory", Runtime.getRuntime().totalMemory() / 1000000);
-            JSONUtilities.safePut(progress, "maxmemory", Runtime.getRuntime().maxMemory() / 1000000);
+            if (includeStats) {
+                JSONUtilities.safePut(progress, "memory", 
+                        Runtime.getRuntime().totalMemory() / 1000000);
+                JSONUtilities.safePut(progress, "maxmemory", 
+                        Runtime.getRuntime().maxMemory() / 1000000);
+            }
         }
     }
 
@@ -202,11 +207,34 @@ public class ImportingJob implements Jsonizable {
     public void write(JSONWriter writer, Properties options)
             throws JSONException {
         
-        synchronized(lock) {
+        synchronized(config) {
             writer.object();
             writer.key("config"); writer.value(config);
             writer.endObject();
         }
     }
+
+
+    public Object getState() {
+        synchronized(config) {
+            return JSONUtilities.getObject(config,"state");
+        }
+
+    }
+
+    public String getBestFormat() {
+        synchronized (config) {
+            JSONArray rankedFormats = JSONUtilities.getArray(config, "rankedFormats");
+            if (rankedFormats != null && rankedFormats.length() > 0) {
+                try {
+                    return rankedFormats.getString(0);
+                } catch (JSONException e) {
+                    // fall through and return null
+                }
+            }
+            return null;
+        }
+    }
+
     
 }
