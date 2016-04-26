@@ -455,6 +455,7 @@ public class XmlImportUtilities extends TreeImportUtilities {
         int level,
         ImportParameters parameter
     ) throws TreeReaderException {
+        boolean nestedEntitySeen = false;
         if (logger.isTraceEnabled()) {
             logger.trace("processSubRecord(Project,TreeReader,ImportColumnGroup,ImportRecord) lvl:"+level+" "+columnGroup);
         }
@@ -489,9 +490,11 @@ public class XmlImportUtilities extends TreeImportUtilities {
             }
         }
 
+        String savedText = null;
         while (parser.hasNext()) {
             Token eventType = parser.next();
             if (eventType == Token.StartEntity) {
+                nestedEntitySeen = true;
                 processSubRecord(
                     project,
                     parser,
@@ -506,15 +509,25 @@ public class XmlImportUtilities extends TreeImportUtilities {
                 String colName = parser.getFieldName();
                 if (value instanceof String) {
                     String text = (String) value;
-                    if(parameter.trimStrings) {
+                    if (parameter.trimStrings) {
                         text = text.trim();
                     }
-                    addCell(project, thisColumnGroup, record, colName, text, 
-                            parameter.storeEmptyStrings, parameter.guessDataType);
+                    if (!text.isEmpty() || parameter.storeEmptyStrings) {
+                        if (savedText == null) {
+                            savedText = text;
+                        } else {
+                            savedText += text;
+                        }
+                    }
                 } else {
                     addCell(project, thisColumnGroup, record, colName, value);
                 }
             } else if (eventType == Token.EndEntity) {
+                // TODO: Do we want the option to save coalesced text in mixed elements?
+                if (savedText != null && !nestedEntitySeen) {
+                    addCell(project, thisColumnGroup, record, null, savedText,
+                            parameter.storeEmptyStrings, parameter.guessDataType);
+                }
                 break;
             } else if (eventType == Token.Ignorable) {
                 continue;

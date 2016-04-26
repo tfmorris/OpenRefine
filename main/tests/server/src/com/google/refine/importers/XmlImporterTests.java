@@ -173,6 +173,25 @@ public class XmlImporterTests extends ImporterTest {
     }
 
     @Test
+    public void testParsesWhiteSpaceCorrectly(){
+
+        JSONObject options = getOptions(job, SUT);
+        JSONUtilities.safePut(options, "storeEmptyStrings", false);
+//        JSONUtilities.safePut(options, "trimStrings", true);
+
+        RunTest(getSampleWithWhiteSpace(), options);
+
+        log(project);
+        assertProjectCreated(project, 4, 6);
+
+        Row row = project.rows.get(3);
+        Assert.assertNotNull(row);
+        Assert.assertEquals(row.cells.size(), 4);
+        Assert.assertNotNull(row.getCell(1));
+        Assert.assertEquals(row.getCell(1).value, "With line\n break");
+    }
+
+    @Test
     public void testElementsWithVaryingStructure(){
         RunTest(getSampleWithVaryingStructure());
 
@@ -321,6 +340,23 @@ public class XmlImporterTests extends ImporterTest {
                 "<author>With line\n break</author>" +
                 "<title>Book title 4</title>" +
                 "<publish_date>2010-05-26</publish_date>" +
+                "</book>");
+        sb.append(getTypicalElement(5));
+        sb.append(getTypicalElement(6));
+        sb.append("</library>");
+        return sb.toString();
+    }
+
+    static String getSampleWithWhiteSpace(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("<?xml version=\"1.0\"?><library>");
+        for(int i = 1; i < 4; i++){
+            sb.append(getTypicalElement(i));
+        }
+        sb.append("<book id=\"4\">\n" +
+                "    <author>With line\n break</author>\n" +
+                "    <title>Book title 4</title>\n" +
+                "    <publish_date>2010-05-26</publish_date>\n" +
                 "</book>");
         sb.append(getTypicalElement(5));
         sb.append(getTypicalElement(6));
