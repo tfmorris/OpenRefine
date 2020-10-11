@@ -81,10 +81,13 @@ public class GrelTests extends RefineTest {
                 "",
                 "1-1-",
                 "2**3",
+                "2^3",
                 "value{datePart()",
                 "value}datePart()",
                 "value.datePart{}",
-//                "2^3" // TODO: Should this generate an error?
+                "1 2",
+                "'a' 'b'",
+                "1e3" // TODO: error until scientific notation implementation done
         };
         for (String test : tests) {
             try {
@@ -100,8 +103,10 @@ public class GrelTests extends RefineTest {
     @Test
     public void testEvalError() {
         String tests[] = {
-//                "1=1", // TODO: Throws NullPointerException
+                "1=1",
                 "value.datePart()",
+                "[1['a','b','c']]", // issue #2507
+                "value.endsWith(\"ROAD\")))))*&(&#37;!#(&)", // issue #169
         };
         for (String test : tests) {
             try {
@@ -149,6 +154,8 @@ public class GrelTests extends RefineTest {
                 { "multinomial(18, 2)", "190" }, // limit for Java longs
                 { "multinomial(18, 3)", "1330" }, // test BigInteger support
                 { "multinomial(3, 5, 2)", "2520" },
+//                { "", "" },
+//                { "1e3", "1000" }, // TODO: scientific notation has only a placeholder so far
 //                { "", "" },
         };
         for (String[] test : tests) {

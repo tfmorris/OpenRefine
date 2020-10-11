@@ -132,7 +132,8 @@ public class Scanner {
                 _index++;
             }
 
-            if (_index < _limit && (c == '.' || c == 'e')) {
+            if (_index + 1 < _limit && (c == '.' /* || c == 'e'*/)
+                    && Character.isDigit(_text.charAt(_index + 1))) {
                 double value2 = value;
                 if (c == '.') {
                     _index++;
@@ -143,11 +144,10 @@ public class Scanner {
                         division *= 10;
                         _index++;
                     }
-
                     value2 /= division;
+                } else if (c == 'e') {
+                    // TODO: support scientific notation
                 }
-
-                // TODO: support exponent e notation
 
                 return new NumberToken(
                         start,
