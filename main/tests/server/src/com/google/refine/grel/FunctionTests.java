@@ -79,7 +79,7 @@ public class FunctionTests extends RefineTest {
         // Five rows of a's and five of 1s
         for (int i = 0; i < 10; i++) {
             Row row = new Row(1);
-            row.setCell(0, new Cell(i < 5 ? "a" : new Integer(1), null));
+            row.setCell(0, new Cell(i < 5 ? "a" : Integer.valueOf(1), null));
             project.rows.add(row);
         }
     }
@@ -99,20 +99,17 @@ public class FunctionTests extends RefineTest {
     @Test
     public void testFacetCount() {
         Assert.assertEquals(invoke("facetCount", "a", "value", "Column A"), Integer.valueOf(5));
-        Assert.assertEquals(invoke("facetCount", new Integer(1), "value", "Column A"), Integer.valueOf(5));
-        Assert.assertEquals(invoke("facetCount", new Integer(2), "value+1", "Column A"), Integer.valueOf(5));
+        Assert.assertEquals(invoke("facetCount", 1, "value", "Column A"), Integer.valueOf(5));
+        Assert.assertEquals(invoke("facetCount", 2, "value+1", "Column A"), Integer.valueOf(5));
     }
 
     @Test
     void testZeroArgs() {
         Set<String> valid0args = new HashSet<>(Arrays.asList("now", "random", "randomNumber")); // valid 0-arg returns
-        // datetype - add random as a
-        // function valid with no
-        // args
 
         // Not sure which, if any, of these are intended, but fixing them may break existing scripts
         Set<String> returnsNull = new HashSet<>(Arrays.asList("chomp", "contains", "escape", "unescape",
-                "fingerprint", "get", "parseJson", "partition", "rpartition",
+                "fingerprint", "parseJson", "partition", "rpartition",
                 "slice", "substring", // synonyms for Slice
                 "unicode", "unicodeType"));
         Set<String> returnsFalse = new HashSet<>(Arrays.asList("hasField"));
@@ -134,7 +131,7 @@ public class FunctionTests extends RefineTest {
     void testTooManyArgs() {
         // Not sure which, if any, of these are intended, but fixing them may break existing scripts
         Set<String> returnsNull = new HashSet<>(Arrays.asList("chomp", "contains", "coalesce", "escape", "unescape",
-                "fingerprint", "get", "now", "parseJson", "partition", "rpartition",
+                "fingerprint", "now", "parseJson", "partition", "rpartition",
                 "slice", "substring", // synonyms for Slice
                 "unicode", "unicodeType"));
         Set<String> returnsFalse = new HashSet<>(Arrays.asList("hasField"));
