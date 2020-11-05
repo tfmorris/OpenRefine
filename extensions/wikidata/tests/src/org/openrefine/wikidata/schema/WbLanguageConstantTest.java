@@ -46,17 +46,17 @@ public class WbLanguageConstantTest extends WbExpressionTest<String> {
 
     @Test
     public void testNormalizeLanguageCode() {
-        assertEquals("ku-latn", WbLanguageConstant.normalizeLanguageCode("ku-latn"));
-        assertEquals("de", WbLanguageConstant.normalizeLanguageCode("de"));
-        assertEquals("nb", WbLanguageConstant.normalizeLanguageCode("no"));
-        assertEquals("nb", WbLanguageConstant.normalizeLanguageCode("nb"));
-        assertEquals("mul", WbLanguageConstant.normalizeLanguageCode("mul"));
+        assertEquals(WbLanguageConstant.normalizeLanguageCode("ku-latn"), "ku-latn");
+        assertEquals(WbLanguageConstant.normalizeLanguageCode("de"), "de");
+        assertEquals(WbLanguageConstant.normalizeLanguageCode("no"), "nb");
+        assertEquals(WbLanguageConstant.normalizeLanguageCode("nb"), "nb");
+        assertEquals(WbLanguageConstant.normalizeLanguageCode("mul"), "mul");
         assertNull(WbLanguageConstant.normalizeLanguageCode("non-existent language code"));
         assertNull(WbLanguageConstant.normalizeLanguageCode(null));
     }
 
     @Test
     public void testFallbackLangCodes() {
-        assertEquals("de", WbLanguageConstant.normalizeLanguageCode("de", "http://not.exist/w/api.php"));
+        assertEquals(WbLanguageConstant.normalizeLanguageCode("de", "http://not.exist/w/api.php"), "de");
     }
 }
