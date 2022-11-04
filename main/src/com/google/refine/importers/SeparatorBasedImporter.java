@@ -186,7 +186,8 @@ public class SeparatorBasedImporter extends TabularImportingParserBase {
                 }
             };
 
-            TabularImportingParserBase.readTable(project, job, dataReader, limit, options, exceptions);
+            TabularImportingParserBase.readTable(project, metadata, job, dataReader, fileSource, limit, options, exceptions);
+//            TabularImportingParserBase.readTable(project, job, dataReader, limit, options, exceptions);
         } catch (TextParsingException e) {
             exceptions.add(e);
         } catch (IOException e) {

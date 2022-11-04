@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.refine.importers;
 
-import java.io.StringReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -326,8 +326,9 @@ public class WikitextImporterTests extends ImporterTest {
 
     // --helpers--
 
-    private void parse(String wikitext) {
-        parseOneFile(importer, new StringReader(wikitext));
+    private void parse(String wikitext) throws IOException {
+        stageString(wikitext);
+        parseOneFile(importer);
     }
 
     private void prepareOptions(
