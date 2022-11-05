@@ -146,6 +146,11 @@ public class GrelTests extends RefineTest {
                 { "2<=2", "true" },
                 { "3<=2", "false" },
                 { "0/0", "NaN" },
+                { "0.0/0.0", "NaN" },
+                { "1/0", "Infinity" },
+                { "1/0.0", "Infinity" },
+                { "-1/0", "-Infinity" },
+                { "-1/0.0", "-Infinity" },
                 { "fact(4)", "24" },
                 { "fact(20)", "2432902008176640000" }, // limit for Java longs
                 { "fact(21)", "java.lang.ArithmeticException: Integer overflow computing factorial" },
@@ -184,6 +189,9 @@ public class GrelTests extends RefineTest {
                 { "3.0/2", "1.5" },
                 { "1", "1" },
                 { "0/0", "NaN" },
+                { "0.0/0.0", "NaN" },
+                { "1/0", "Infinity" },
+                { "1.0/0.0", "Infinity" },
         };
         for (String[] test : tests) {
             parseEval(bindings, test);

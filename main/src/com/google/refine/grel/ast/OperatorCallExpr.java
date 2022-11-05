@@ -76,8 +76,14 @@ public class OperatorCallExpr implements Evaluable {
                     } else if ("*".equals(_op)) {
                         return n1 * n2;
                     } else if ("/".equals(_op)) {
-                        if (n2 == 0 && n1 == 0) {
-                            return Double.NaN;
+                        if (n2 == 0) {
+                            if (n1 == 0) {
+                                return Double.NaN;
+                            } else if (n1 > 0) {
+                                return Double.POSITIVE_INFINITY;
+                            } else {
+                                return Double.NEGATIVE_INFINITY;
+                            }
                         }
                         return n1 / n2;
                     } else if ("%".equals(_op)) {
