@@ -344,5 +344,6 @@ public class WikitextImporterTests extends ImporterTest {
         whenGetBooleanOption("includeRawTemplates", options, true);
         whenGetStringOption("wikiUrl", options, wikiUrl);
         whenGetStringOption("reconService", options, reconEndpoint);
+        whenGetStringOption("encoding", options, "utf-8");
     }
 }
