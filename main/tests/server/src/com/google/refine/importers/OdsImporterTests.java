@@ -135,7 +135,7 @@ public class OdsImporterTests extends ImporterTest {
         whenGetBooleanOption("storeBlankCellsAsNulls", options, true);
 
         try {
-            Logger.getLogger("").setLevel(Level.OFF);  // disable annoying logging since we expect this to fail
+            Logger.getLogger("").setLevel(Level.OFF); // disable annoying logging since we expect this to fail
             List<Exception> exceptions = parseOneFileAndReturnExceptions(SUT);
             assertEquals(exceptions.size(), 1);
             Exception NPE = exceptions.get(0);
