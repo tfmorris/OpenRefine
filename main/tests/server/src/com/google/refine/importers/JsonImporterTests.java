@@ -288,16 +288,16 @@ public class JsonImporterTests extends ImporterTest {
      * occurs after a Field_Name token
      */
     @Test
-    public void EnsureJSONParserHandlesgetLocalNameCorrectly() throws Exception {
+    public void EnsureJSONParserHandlesGetLocalNameCorrectly() {
         String sampleJson = "{\"field\":\"value\"}";
         String sampleJson2 = "{\"field\":{}}";
         String sampleJson3 = "{\"field\":[{},{}]}";
 
         JSONTreeReader parser = new JSONTreeReader(new ByteArrayInputStream(sampleJson.getBytes(StandardCharsets.UTF_8)));
-        Token token = Token.Ignorable;
+        Token token;
         int i = 0;
         try {
-            while (token != null) {
+            while (true) {
                 token = parser.next();
                 if (token == null) {
                     break;
@@ -313,10 +313,9 @@ public class JsonImporterTests extends ImporterTest {
         }
 
         parser = new JSONTreeReader(new ByteArrayInputStream(sampleJson2.getBytes(StandardCharsets.UTF_8)));
-        token = Token.Ignorable;
         i = 0;
         try {
-            while (token != null) {
+            while (true) {
                 token = parser.next();
                 if (token == null) {
                     break;
@@ -332,10 +331,9 @@ public class JsonImporterTests extends ImporterTest {
         }
 
         parser = new JSONTreeReader(new ByteArrayInputStream(sampleJson3.getBytes(StandardCharsets.UTF_8)));
-        token = Token.Ignorable;
         i = 0;
         try {
-            while (token != null) {
+            while (true) {
                 token = parser.next();
                 if (token == null) {
                     break;
@@ -360,15 +358,15 @@ public class JsonImporterTests extends ImporterTest {
     }
 
     @Test
-    public void testCanParseTab() throws Exception {
+    public void testCanParseTab() {
         // Use un-escaped tabs here.
         String sampleJson = "{\"\tfield\":\t\"\tvalue\"}";
 
         JSONTreeReader parser = new JSONTreeReader(new ByteArrayInputStream(sampleJson.getBytes(StandardCharsets.UTF_8)));
-        Token token = Token.Ignorable;
+        Token token;
         int i = 0;
         try {
-            while (token != null) {
+            while (true) {
                 token = parser.next();
                 if (token == null) {
                     break;
@@ -418,12 +416,12 @@ public class JsonImporterTests extends ImporterTest {
         row = project.rows.get(15);
         Assert.assertNotNull(row);
         Assert.assertEquals(row.cells.size(), 2);
-        Assert.assertEquals(row.cells.get(1).value, Long.valueOf(0));
+        Assert.assertEquals(row.cells.get(1).value, 0L);
 
         row = project.rows.get(16);
         Assert.assertNotNull(row);
         Assert.assertEquals(row.cells.size(), 2);
-        Assert.assertEquals(row.cells.get(1).value, Long.valueOf(1));
+        Assert.assertEquals(row.cells.get(1).value, 1L);
 
         row = project.rows.get(17);
         Assert.assertNotNull(row);
@@ -433,18 +431,18 @@ public class JsonImporterTests extends ImporterTest {
         row = project.rows.get(18);
         Assert.assertNotNull(row);
         Assert.assertEquals(row.cells.size(), 2);
-        Assert.assertEquals(row.cells.get(1).value, Double.valueOf((double) 0.23));
+        Assert.assertEquals(row.cells.get(1).value, 0.23);
 
         row = project.rows.get(19);
         Assert.assertNotNull(row);
         Assert.assertEquals(row.cells.size(), 2);
-        Assert.assertEquals(row.cells.get(1).value, Double.valueOf((double) -0.24));
+        Assert.assertEquals(row.cells.get(1).value, -0.24);
 
         row = project.rows.get(20);
         Assert.assertNotNull(row);
         Assert.assertEquals(row.cells.size(), 2);
         Assert.assertFalse(Double.isNaN((Double) row.cells.get(1).value));
-        Assert.assertEquals(row.cells.get(1).value, Double.valueOf((double) 3.14e100));
+        Assert.assertEquals(row.cells.get(1).value, 3.14e100);
 
         // null, true, false 0,1,-2.1,0.23,-0.24,3.14e100
 
@@ -454,7 +452,7 @@ public class JsonImporterTests extends ImporterTest {
     @Test
     public void testComplexJsonStructure() throws IOException {
         String fileName = "grid_small.json";
-        RunComplexJSONTest(getComplexJSON(fileName));
+        RunComplexJSONTest(getResourceAsString(fileName));
 
         logger.debug("************************ column number:" + project.columnModel.columns.size() +
                 ". \tcolumn groups number:" + project.columnModel.columnGroups.size() +
@@ -483,7 +481,7 @@ public class JsonImporterTests extends ImporterTest {
         JSONUtilities.safePut(options, "guessCellValueTypes", false);
         JSONUtilities.safePut(options, "includeFileSources", true);
 
-        List<Exception> exceptions = new ArrayList<Exception>();
+        List<Exception> exceptions = new ArrayList<>();
 
         SUT.parse(
                 project,
@@ -616,22 +614,20 @@ public class JsonImporterTests extends ImporterTest {
     }
 
     private static String getSampleWithDataTypes() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
         int i = 1;
-        sb.append("{\"id\":" + i++ + ",\"cell\":[\"39766\",\"T1009\",\"foo\",\"DEU\",\"19\",\"01:49\"]},\n");
-        sb.append("{\"id\":" + i++ + ",\"cell\":[\"39766\",\"T1009\",\"\",\"DEU\",\"19\",\"01:49\"]},\n");
-        sb.append("{\"id\":null,\"cell\":[null,true,false,0,1,-2.1,0.23,-0.24,3.14e100]}\n");
-        sb.append("]");
-        return sb.toString();
+        String sb = "[" +
+                "{\"id\":" + i++ + ",\"cell\":[\"39766\",\"T1009\",\"foo\",\"DEU\",\"19\",\"01:49\"]},\n" +
+                "{\"id\":" + i++ + ",\"cell\":[\"39766\",\"T1009\",\"\",\"DEU\",\"19\",\"01:49\"]},\n" +
+                "{\"id\":null,\"cell\":[null,true,false,0,1,-2.1,0.23,-0.24,3.14e100]}\n" +
+                "]";
+        return sb;
     }
 
     private static String getSampleWithError() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        sb.append("{\"id\":" + "\"\n\";");
-        sb.append("]");
-        return sb.toString();
+        String sb = "[" +
+                "{\"id\":" + "\"\n\";" +
+                "]";
+        return sb;
     }
 
     private void RunTest(String testString) {
@@ -649,18 +645,17 @@ public class JsonImporterTests extends ImporterTest {
     private void RunTest(String testString, ObjectNode options) {
         try {
             stageString(testString);
-//            parseOneFile(SUT);
-            parseOneInputStream(SUT, inputStream, options);
+            parseOneTreeFile(SUT, options);
         } catch (IOException e) {
             Assert.fail("JSON importer test failed", e);
         }
     }
 
-    private String getComplexJSON(String fileName) throws IOException {
-        InputStream in = this.getClass().getClassLoader()
-                .getResourceAsStream(fileName);
-        String content = org.apache.commons.io.IOUtils.toString(in, StandardCharsets.UTF_8);
-
-        return content;
+    private String getResourceAsString(String fileName) throws IOException {
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream(fileName);
+        if (in == null) {
+            return null;
+        }
+        return org.apache.commons.io.IOUtils.toString(in, StandardCharsets.UTF_8);
     }
 }

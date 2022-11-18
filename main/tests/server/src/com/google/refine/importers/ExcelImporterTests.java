@@ -39,7 +39,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -208,7 +207,6 @@ public class ExcelImporterTests extends ImporterTest {
 
         Assert.assertEquals((String) project.rows.get(1).getCellValue(4), " Row 1 Col 5");
         Assert.assertNull(project.rows.get(1).getCellValue(5));
-        Assert.assertNull(project.rows.get(1).getCellValue(5));
 
         assertEquals(project.rows.get(1).getCellValue(6), 1L);
         assertEquals(project.rows.get(2).getCellValue(6), 2L);
@@ -237,11 +235,8 @@ public class ExcelImporterTests extends ImporterTest {
 
     @Test
     public void readXlsxAsText() throws IOException {
-
-        ArrayNode sheets = ParsingUtilities.mapper.createArrayNode();
-        sheets.add(ParsingUtilities.mapper
-                .readTree("{name: \"file-source#Test Sheet 0\", fileNameAndSheetIndex: \"file-source#0\", rows: 31, selected: true}"));
-        whenGetArrayOption("sheets", options, sheets);
+        stageFile(xlsxFile);
+        initMetadata(xlsxFile.getName(), 1);
 
         whenGetIntegerOption("ignoreLines", options, 0);
         whenGetIntegerOption("headerLines", options, 0);
@@ -250,10 +245,8 @@ public class ExcelImporterTests extends ImporterTest {
         whenGetBooleanOption("storeBlankCellsAsNulls", options, true);
         whenGetBooleanOption("forceText", options, true);
 
-        InputStream stream = new FileInputStream(xlsxFile);
-
         try {
-            parseOneFile(SUT, stream);
+            parseOneFile(SUT);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -326,27 +319,62 @@ public class ExcelImporterTests extends ImporterTest {
 
         parseOneFile(SUT);
 
-        // The original value reads 2021-04-18 in the Excel file.
-        // We make sure it is not shifted by a day because of timezone handling
-        Object cellValue = project.rows.get(0).getCellValue(0);
-        Assert.assertTrue(cellValue instanceof OffsetDateTime);
-        OffsetDateTime date = (OffsetDateTime) cellValue;
-        Assert.assertEquals(date.getYear(), 2021);
-        Assert.assertEquals(date.getMonth(), Month.APRIL);
-        Assert.assertEquals(date.getDayOfMonth(), 18);
-        // Same, with January 1st (in winter / no DST)
-        Object cellValue2 = project.rows.get(1).getCellValue(0);
-        Assert.assertTrue(cellValue2 instanceof OffsetDateTime);
-        OffsetDateTime date2 = (OffsetDateTime) cellValue2;
-        Assert.assertEquals(date2.getYear(), 2021);
-        Assert.assertEquals(date2.getMonth(), Month.JANUARY);
-        Assert.assertEquals(date2.getDayOfMonth(), 1);
+        // Read dates as strings
+        assertEquals(project.rows.get(0).getCellValue(0), "2021-04-18");
+        // Same, with 2021-01-01 (in winter / no DST)
+        assertEquals(project.rows.get(1).getCellValue(0), "2021-01-01");
+
     }
 
     @Test
     public void readMultiSheetXls() throws IOException {
         stageFile(xlsFileWithMultiSheets);
         initMetadata(xlsFileWithMultiSheets.getName(), 3);
+
+        whenGetIntegerOption("ignoreLines", options, 0);
+        whenGetIntegerOption("headerLines", options, 0);
+        whenGetIntegerOption("skipDataLines", options, 0);
+        whenGetIntegerOption("limit", options, -1);
+        whenGetBooleanOption("storeBlankCellsAsNulls", options, true);
+
+        try {
+            parseOneFile(SUT);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        Assert.assertEquals(project.rows.size(), ROWS * SHEETS);
+        Assert.assertEquals(project.rows.get(1).cells.size(), COLUMNS);
+        Assert.assertEquals(project.columnModel.columns.size(), COLUMNS + SHEETS - 1);
+
+        Assert.assertEquals(((Number) project.rows.get(1).getCellValue(0)).doubleValue(), 1.1, EPSILON);
+        Assert.assertEquals(((Number) project.rows.get(2).getCellValue(0)).doubleValue(), 2.2, EPSILON);
+        // Check the value read from the second sheet.
+        Assert.assertEquals(((Number) project.rows.get(ROWS).getCellValue(0)).doubleValue(), 0.0, EPSILON);
+        Assert.assertEquals(((Number) project.rows.get(ROWS).getCellValue(COLUMNS)).doubleValue(), 1.0, EPSILON);
+
+        Assert.assertFalse((Boolean) project.rows.get(1).getCellValue(1));
+        Assert.assertTrue((Boolean) project.rows.get(2).getCellValue(1));
+
+        // Skip col 2 where old Calendar test was
+        assertTrue(ParsingUtilities.isDate(project.rows.get(1).getCellValue(3)), "Cell value is not a date"); // Date
+        assertTrue(Duration.between(NOW, (OffsetDateTime) project.rows.get(1).getCellValue(3)).toMillis() < 1);
+
+        Assert.assertEquals((String) project.rows.get(1).getCellValue(4), " Row 1 Col 5");
+        Assert.assertNull((String) project.rows.get(1).getCellValue(5));
+
+        // We will read SHEETS sheets from created xls file.
+        verify(options, times(SHEETS)).get("ignoreLines");
+        verify(options, times(SHEETS)).get("headerLines");
+        verify(options, times(SHEETS)).get("skipDataLines");
+        verify(options, times(SHEETS)).get("limit");
+        verify(options, times(SHEETS)).get("storeBlankCellsAsNulls");
+    }
+
+    @Test
+    public void readMultiSheetXlsx() throws IOException {
+        stageFile(xlsxFileWithMultiSheets);
+        initMetadata(xlsxFileWithMultiSheets.getName(), 3);
 
         whenGetIntegerOption("ignoreLines", options, 0);
         whenGetIntegerOption("headerLines", options, 0);
@@ -420,56 +448,11 @@ public class ExcelImporterTests extends ImporterTest {
         Assert.assertFalse((Boolean) project.rows.get(1).getCellValue(2));
         Assert.assertTrue((Boolean) project.rows.get(2).getCellValue(2));
 
-        assertTrue(ParsingUtilities.isDate(project.rows.get(1).getCellValue(3))); // Calendar
+        // Skip col 2 where old Calendar test was
         assertTrue(ParsingUtilities.isDate(project.rows.get(1).getCellValue(4))); // Date
 
         Assert.assertEquals((String) project.rows.get(1).getCellValue(5), " Row 1 Col 5");
         Assert.assertNull(project.rows.get(1).getCellValue(6));
-
-        // We will read SHEETS sheets from created xls file.
-        verify(options, times(SHEETS)).get("ignoreLines");
-        verify(options, times(SHEETS)).get("headerLines");
-        verify(options, times(SHEETS)).get("skipDataLines");
-        verify(options, times(SHEETS)).get("limit");
-        verify(options, times(SHEETS)).get("storeBlankCellsAsNulls");
-    }
-
-    @Test
-    public void readMultiSheetXlsx() throws IOException {
-        stageFile(xlsxFileWithMultiSheets);
-        initMetadata(xlsxFileWithMultiSheets.getName(), 3);
-
-        whenGetIntegerOption("ignoreLines", options, 0);
-        whenGetIntegerOption("headerLines", options, 0);
-        whenGetIntegerOption("skipDataLines", options, 0);
-        whenGetIntegerOption("limit", options, -1);
-        whenGetBooleanOption("storeBlankCellsAsNulls", options, true);
-
-        try {
-            parseOneFile(SUT);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-
-        Assert.assertEquals(project.rows.size(), ROWS * SHEETS);
-        Assert.assertEquals(project.rows.get(1).cells.size(), COLUMNS);
-        Assert.assertEquals(project.columnModel.columns.size(), COLUMNS + SHEETS - 1);
-
-        Assert.assertEquals(((Number) project.rows.get(1).getCellValue(0)).doubleValue(), 1.1, EPSILON);
-        Assert.assertEquals(((Number) project.rows.get(2).getCellValue(0)).doubleValue(), 2.2, EPSILON);
-        // Check the value read from the second sheet.
-        Assert.assertEquals(((Number) project.rows.get(ROWS).getCellValue(0)).doubleValue(), 0.0, EPSILON);
-        Assert.assertEquals(((Number) project.rows.get(ROWS).getCellValue(COLUMNS)).doubleValue(), 1.0, EPSILON);
-
-        Assert.assertFalse((Boolean) project.rows.get(1).getCellValue(1));
-        Assert.assertTrue((Boolean) project.rows.get(2).getCellValue(1));
-
-        // Skip col 2 where old Calendar test was
-        assertTrue(ParsingUtilities.isDate(project.rows.get(1).getCellValue(3)), "Cell value is not a date"); // Date
-        assertTrue(Duration.between(NOW, (OffsetDateTime) project.rows.get(1).getCellValue(3)).toMillis() < 1);
-
-        Assert.assertEquals((String) project.rows.get(1).getCellValue(4), " Row 1 Col 5");
-        Assert.assertNull(project.rows.get(1).getCellValue(5));
 
         // We will read SHEETS sheets from created xls file.
         verify(options, times(SHEETS)).get("ignoreLines");

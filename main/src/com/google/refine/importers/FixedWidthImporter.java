@@ -34,8 +34,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -97,7 +97,7 @@ public class FixedWidthImporter extends TabularImportingParserBase {
         if (options.has("columnNames")) {
             String[] strings = JSONUtilities.getStringArray(options, "columnNames");
             if (strings.length > 0) {
-                retrievedColumnNames = new ArrayList<Object>();
+                retrievedColumnNames = new ArrayList<>();
                 for (String s : strings) {
                     s = CharMatcher.whitespace().trimFrom(s);
                     if (!s.isEmpty()) {
@@ -146,13 +146,13 @@ public class FixedWidthImporter extends TabularImportingParserBase {
      *            Line to be split
      * @param widths
      *            array of integers with field sizes
-     * @return
+     * @return an ArrayList of cells
      */
     static private ArrayList<Object> getCells(String line, int[] widths) {
-        ArrayList<Object> cells = new ArrayList<Object>();
+        ArrayList<Object> cells = new ArrayList<>();
 
         int columnStartCursor = 0;
-        int columnEndCursor = 0;
+        int columnEndCursor;
         for (int width : widths) {
             if (columnStartCursor >= line.length()) {
                 cells.add(null); // FIXME is adding a null cell (to represent no data) OK?
@@ -185,9 +185,8 @@ public class FixedWidthImporter extends TabularImportingParserBase {
         try {
             InputStream is = new FileInputStream(file);
             Reader reader = (encoding != null) ? new InputStreamReader(is, encoding) : new InputStreamReader(is);
-            LineNumberReader lineNumberReader = new LineNumberReader(reader);
 
-            try {
+            try (is; reader; LineNumberReader lineNumberReader = new LineNumberReader(reader)) {
                 int[] counts = null;
                 int totalBytes = 0;
                 int lineCount = 0;
@@ -204,9 +203,7 @@ public class FixedWidthImporter extends TabularImportingParserBase {
 
                     if (counts == null) {
                         counts = new int[s.length()];
-                        for (int c = 0; c < counts.length; c++) {
-                            counts[c] = 0;
-                        }
+                        Arrays.fill(counts, 0);
                     }
 
                     for (int c = 0; c < counts.length && c < s.length(); c++) {
@@ -218,7 +215,7 @@ public class FixedWidthImporter extends TabularImportingParserBase {
                 }
 
                 if (counts != null && lineCount > 2) {
-                    List<Integer> widths = new ArrayList<Integer>();
+                    List<Integer> widths = new ArrayList<>();
 
                     int startIndex = 0;
                     for (int c = 0; c < counts.length; c++) {
@@ -242,13 +239,7 @@ public class FixedWidthImporter extends TabularImportingParserBase {
                     }
                     return widthA;
                 }
-            } finally {
-                lineNumberReader.close();
-                reader.close();
-                is.close();
             }
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

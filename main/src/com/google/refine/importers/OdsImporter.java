@@ -199,7 +199,7 @@ public class OdsImporter extends TabularImportingParserBase {
         // TODO: how can we tell if a cell contains an error?
         // String formula = cell.getFormula();
 
-        Serializable value = null;
+        Serializable value;
         // "boolean", "currency", "date", "float", "percentage", "string" or "time"
         String cellType = cell.getValueType();
         if ("boolean".equals(cellType)) {

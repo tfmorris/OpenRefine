@@ -38,7 +38,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -179,7 +178,7 @@ public class SeparatorBasedImporterTests extends ImporterTest {
         Assert.assertEquals(project.rows.get(0).cells.get(2).value, "data3");
     }
 
-    @Test(groups = {}, dataProvider = "CSV-TSV-AutoDetermine")
+    @Test(dataProvider = "CSV-TSV-AutoDetermine")
     public void readDoesNotTrimLeadingTrailingWhitespace(String sep) {
         // create input to test with
         String inputSeparator = sep == null ? "\t" : sep;
@@ -221,7 +220,7 @@ public class SeparatorBasedImporterTests extends ImporterTest {
         Assert.assertEquals(project.rows.get(0).cells.get(2).value, " data3");
     }
 
-    @Test(groups = {}, dataProvider = "CSV-TSV-AutoDetermine")
+    @Test(dataProvider = "CSV-TSV-AutoDetermine")
     public void readTrimsLeadingTrailingWhitespaceOnTrimStrings(String sep) {
         // create input to test with
         String inputSeparator = sep == null ? "\t" : sep;
@@ -242,7 +241,7 @@ public class SeparatorBasedImporterTests extends ImporterTest {
         Assert.assertEquals(project.rows.get(0).cells.get(2).value, "data3");
     }
 
-    @Test(groups = {}, dataProvider = "CSV-TSV-AutoDetermine")
+    @Test(dataProvider = "CSV-TSV-AutoDetermine")
     public void readDoesNotTrimLeadingTrailingWhitespaceOnNoTrimStrings(String sep) {
         // create input to test with
         String inputSeparator = sep == null ? "\t" : sep;
@@ -263,7 +262,7 @@ public class SeparatorBasedImporterTests extends ImporterTest {
         Assert.assertEquals(project.rows.get(0).cells.get(2).value, " data3 ");
     }
 
-    @Test(groups = {}, dataProvider = "CSV-TSV-AutoDetermine")
+    @Test(dataProvider = "CSV-TSV-AutoDetermine")
     public void trimAndAutodetectDatatype(String sep) {
         // create input to test with
         String inputSeparator = sep == null ? "\t" : sep;
@@ -363,7 +362,7 @@ public class SeparatorBasedImporterTests extends ImporterTest {
         Assert.assertEquals(project.rows.get(0).cells.get(5).value, "data6");
     }
 
-    @Test(groups = {}, dataProvider = "CSV-TSV-AutoDetermine")
+    @Test(dataProvider = "CSV-TSV-AutoDetermine")
     public void readQuotedData(String sep) {
         // create input
         String inputSeparator = sep == null ? "\t" : sep;
@@ -469,7 +468,7 @@ public class SeparatorBasedImporterTests extends ImporterTest {
         Assert.assertEquals(project.rows.get(0).cells.get(2).value, "data3");
     }
 
-    @Test(groups = {}, dataProvider = "CSV-TSV-AutoDetermine")
+    @Test(dataProvider = "CSV-TSV-AutoDetermine")
     public void readIgnore3_Header2_Skip2_limit2(String sep) {
         // create input
         String inputSeparator = sep == null ? "\t" : sep;
@@ -528,7 +527,7 @@ public class SeparatorBasedImporterTests extends ImporterTest {
         Assert.assertEquals(project.rows.get(0).cells.get(2).value, "data3");
     }
 
-    @Test(groups = {}, dataProvider = "CSV-TSV-AutoDetermine")
+    @Test(dataProvider = "CSV-TSV-AutoDetermine")
     public void readWithMultiLinedQuotedData(String sep) {
         // create input
         String inputSeparator = sep == null ? "\t" : sep;
@@ -552,7 +551,7 @@ public class SeparatorBasedImporterTests extends ImporterTest {
         Assert.assertEquals(project.rows.get(0).cells.get(1).value, "data2");
     }
 
-    @Test(groups = {}, dataProvider = "CSV-TSV-AutoDetermine")
+    @Test(dataProvider = "CSV-TSV-AutoDetermine")
     public void readWithMultiLinedQuotedDataAndBlankLines(String sep) {
         // create input
         String inputSeparator = sep == null ? "\t" : sep;
@@ -669,12 +668,12 @@ public class SeparatorBasedImporterTests extends ImporterTest {
         // Be careful of whitespace at field boundaries which will get trimmed by trimWhitespace = true
         // Also take care to make sure backslashes are escaped correctly for Java
         String input = "da\\rta1\tdat\\ta2\tdata3\tdat\\na4";
-        StringReader reader = new StringReader(input);
 
         prepareOptions("\t", -1, 0, 0, 0, false, true);
 
         try {
-            parseOneFile(SUT, reader);
+            stageString(input);
+            parseOneFile(SUT);
         } catch (Exception e) {
             Assert.fail("Exception during file parse", e);
         }
