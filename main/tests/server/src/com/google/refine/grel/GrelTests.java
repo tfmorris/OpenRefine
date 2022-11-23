@@ -206,7 +206,7 @@ public class GrelTests extends RefineTest {
 
     @Test
     public void testGetJsonFieldAbsent() throws ParsingException {
-        String test =  "\"[{\\\"one\\\": \\\"1\\\"}]\".parseJson()[0].two";
+        String test = "\"[{\\\"one\\\": \\\"1\\\"}]\".parseJson()[0].two";
         Evaluable eval = MetaParser.parse("grel:" + test);
         Assert.assertNull(eval.evaluate(bindings));
     }
@@ -229,10 +229,10 @@ public class GrelTests extends RefineTest {
 
     @Test
     public void testGetFieldFromBadType() throws ParsingException {
-        String test =  "1.foo";
+        String test = "1.foo";
         Evaluable eval = MetaParser.parse("grel:" + test);
         Assert.assertTrue(eval.evaluate(bindings) instanceof EvalError);
-        String test1 =  "1.1.foo";
+        String test1 = "1.1.foo";
         Evaluable eval1 = MetaParser.parse("grel:" + test1);
         Assert.assertTrue(eval1.evaluate(bindings) instanceof EvalError);
         Evaluable eval2 = MetaParser.parse("grel:[1,2].value");

@@ -132,7 +132,7 @@ public class Scanner {
                 _index++;
             }
 
-            if (_index + 1 < _limit && (c == '.' /* || c == 'e'*/)
+            if (_index + 1 < _limit && (c == '.' /* || c == 'e' */)
                     && Character.isDigit(_text.charAt(_index + 1))) {
                 double value2 = value;
                 if (c == '.') {

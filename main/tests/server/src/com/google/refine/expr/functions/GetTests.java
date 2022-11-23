@@ -113,7 +113,7 @@ public class GetTests extends RefineTest {
         parseEval(bindings, test8);
         parseEvalType(bindings, "get(null, 2)", EvalError.class);
         parseEvalType(bindings, "1.get(1)", EvalError.class);
-        }
+    }
 
     @Test
     public void testGetArraySlice() throws ParsingException {
@@ -138,7 +138,7 @@ public class GetTests extends RefineTest {
 
     @Test
     public void testGetJsonFieldAbsent() throws ParsingException {
-        String test =  "\"[{\\\"one\\\": \\\"1\\\"}]\".parseJson()[0].two";
+        String test = "\"[{\\\"one\\\": \\\"1\\\"}]\".parseJson()[0].two";
         Evaluable eval = MetaParser.parse("grel:" + test);
         assertNull(eval.evaluate(bindings));
     }
