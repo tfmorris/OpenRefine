@@ -49,9 +49,9 @@ import com.google.refine.util.TestUtils;
 public class ScatterplotFacetTests extends RefineTest {
 
     public static String configJson = "{\n" +
-            "          \"to_x\": 1,\n" +
-            "          \"to_y\": 1,\n" +
-            "          \"dot\": 1,\n" +
+            "          \"to_x\": 1.0,\n" +
+            "          \"to_y\": 1.0,\n" +
+            "          \"dot\": 1.0,\n" +
             "          \"from_x\": 0.21333333333333335,\n" +
             "          \"l\": 150,\n" +
             "          \"type\": \"scatterplot\",\n" +
@@ -72,15 +72,15 @@ public class ScatterplotFacetTests extends RefineTest {
             + "\"cy\":\"e\","
             + "\"ey\":\"value\","
             + "\"l\":150,"
-            + "\"dot\":1,"
-            + "\"r\":0,"
+            + "\"dot\":1.0,"
+            + "\"r\":0.0,"
             + "\"dim_x\":0,"
             + "\"dim_y\":0,"
             + "\"color\":\"000000\","
             + "\"from_x\":0.21333333333333335,"
-            + "\"to_x\":1,"
+            + "\"to_x\":1.0,"
             + "\"from_y\":0.26666666666666666,"
-            + "\"to_y\":1"
+            + "\"to_y\":1.0"
             + "}";
 
     @Test

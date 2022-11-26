@@ -118,7 +118,7 @@ public class GuessTypesOfColumnCommandTests extends RefineTest {
                 "         \"count\" : 2,\n" +
                 "         \"id\" : \"Q3624078\",\n" +
                 "         \"name\" : \"sovereign state\",\n" +
-                "         \"score\" : 2\n" +
+                "         \"score\" : 2.0\n" +
                 "       }, {\n" +
                 "         \"count\" : 1,\n" +
                 "         \"id\" : \"Q112099\",\n" +

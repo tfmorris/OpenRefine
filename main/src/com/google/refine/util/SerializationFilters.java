@@ -102,28 +102,6 @@ public class SerializationFilters {
     };
 
     /**
-     * Serialize double values as integers if they happen to round to an integer.
-     */
-    public static class DoubleSerializer extends StdSerializer<Double> {
-
-        private static final long serialVersionUID = 132345L;
-
-        public DoubleSerializer() {
-            super(Double.class);
-        }
-
-        @Override
-        public void serialize(Double arg0, JsonGenerator gen, SerializerProvider s)
-                throws IOException {
-            if (Double.valueOf(arg0.longValue()).equals(arg0)) {
-                gen.writeNumber(arg0.longValue());
-            } else {
-                gen.writeNumber(arg0);
-            }
-        }
-    }
-
-    /**
      * Serialize dates by ISO format.
      */
     public static class OffsetDateSerializer extends StdSerializer<OffsetDateTime> {

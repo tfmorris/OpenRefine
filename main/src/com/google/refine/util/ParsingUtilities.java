@@ -79,8 +79,6 @@ public class ParsingUtilities {
     public static final ObjectMapper mapper = new ObjectMapper(jsonFactory);
     static {
         SimpleModule module = new SimpleModule();
-        module.addSerializer(Double.class, new SerializationFilters.DoubleSerializer());
-        module.addSerializer(double.class, new SerializationFilters.DoubleSerializer());
         module.addSerializer(OffsetDateTime.class, new SerializationFilters.OffsetDateSerializer());
         module.addSerializer(LocalDateTime.class, new SerializationFilters.LocalDateSerializer());
         module.addDeserializer(OffsetDateTime.class, new SerializationFilters.OffsetDateDeserializer());

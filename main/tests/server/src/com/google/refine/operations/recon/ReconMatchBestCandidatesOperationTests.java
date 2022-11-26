@@ -49,8 +49,8 @@ public class ReconMatchBestCandidatesOperationTests extends RefineTest {
                 + "\"op\":\"core/recon-match-best-candidates\","
                 + "\"description\":\"Match each cell to its best recon candidate in column organization_name\","
                 + "\"engineConfig\":{\"mode\":\"row-based\",\"facets\":["
-                + "       {\"selectNumeric\":true,\"expression\":\"cell.recon.best.score\",\"selectBlank\":false,\"selectNonNumeric\":true,\"selectError\":true,\"name\":\"organization_name: best candidate's score\",\"from\":13,\"to\":101,\"type\":\"range\",\"columnName\":\"organization_name\"},"
-                + "       {\"selectNonTime\":true,\"expression\":\"grel:toDate(value)\",\"selectBlank\":true,\"selectError\":true,\"selectTime\":true,\"name\":\"start_year\",\"from\":410242968000,\"to\":1262309184000,\"type\":\"timerange\",\"columnName\":\"start_year\"}"
+                + "       {\"selectNumeric\":true,\"expression\":\"cell.recon.best.score\",\"selectBlank\":false,\"selectNonNumeric\":true,\"selectError\":true,\"name\":\"organization_name: best candidate's score\",\"from\":13.0,\"to\":101.0,\"type\":\"range\",\"columnName\":\"organization_name\"},"
+                + "       {\"selectNonTime\":true,\"expression\":\"grel:toDate(value)\",\"selectBlank\":true,\"selectError\":true,\"selectTime\":true,\"name\":\"start_year\",\"from\":4.10242968E11,\"to\":1.262309184E12,\"type\":\"timerange\",\"columnName\":\"start_year\"}"
                 + "]},"
                 + "\"columnName\":\"organization_name\""
                 + "}";

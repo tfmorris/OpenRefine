@@ -51,8 +51,8 @@ public class RangeFacetTests extends RefineTest {
             "          \"selectNonNumeric\": true,\n" +
             "          \"selectError\": true,\n" +
             "          \"name\": \"my column\",\n" +
-            "          \"from\": -30,\n" +
-            "          \"to\": 90,\n" +
+            "          \"from\": -30.0,\n" +
+            "          \"to\": 90.0,\n" +
             "          \"type\": \"range\",\n" +
             "          \"columnName\": \"my column\"\n" +
             "        }";
@@ -61,13 +61,13 @@ public class RangeFacetTests extends RefineTest {
             + "\"name\":\"my column\","
             + "\"expression\":\"value\","
             + "\"columnName\":\"my column\","
-            + "\"min\":-50,"
-            + "\"max\":90,"
-            + "\"step\":10,"
+            + "\"min\":-50.0,"
+            + "\"max\":90.0,"
+            + "\"step\":10.0,"
             + "\"bins\":[1,0,0,0,0,1,0,0,0,0,0,0,0,1],"
             + "\"baseBins\":[1,0,0,0,0,1,0,0,0,0,0,0,0,1],"
-            + "\"from\":-30,"
-            + "\"to\":90,"
+            + "\"from\":-30.0,"
+            + "\"to\":90.0,"
             + "\"baseNumericCount\":3,"
             + "\"baseNonNumericCount\":1,"
             + "\"baseBlankCount\":0,"

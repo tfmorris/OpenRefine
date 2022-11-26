@@ -49,7 +49,7 @@ public class kNNClustererTests extends RefineTest {
             + "\"type\":\"knn\","
             + "\"function\":\"PPM\","
             + "\"column\":\"values\","
-            + "\"params\":{\"radius\":1,\"blocking-ngram-size\":2}"
+            + "\"params\":{\"radius\":1.0,\"blocking-ngram-size\":2}"
             + "}";
     public static String clustererJson = "["
             + "   [{\"v\":\"ab\",\"c\":1},{\"v\":\"abc\",\"c\":1}]"

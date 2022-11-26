@@ -49,13 +49,13 @@ public class TimeRangeFacetTests extends RefineTest {
             + "\"name\":\"my column\","
             + "\"expression\":\"value\","
             + "\"columnName\":\"my column\","
-            + "\"min\":1199329445000,"
-            + "\"max\":1514966950000,"
-            + "\"step\":31556952000,"
+            + "\"min\":1.199329445E12,"
+            + "\"max\":1.51496695E12,"
+            + "\"step\":3.1556952E10,"
             + "\"bins\":[1,0,0,0,1,0,0,0,0,0,1],"
             + "\"baseBins\":[1,0,0,0,1,0,0,0,0,0,1],"
-            + "\"from\":1262443349000,"
-            + "\"to\":1514966950000,"
+            + "\"from\":1.262443349E12,"
+            + "\"to\":1.51496695E12,"
             + "\"baseTimeCount\":3,"
             + "\"baseNonTimeCount\":1,"
             + "\"baseBlankCount\":0,"
@@ -72,8 +72,8 @@ public class TimeRangeFacetTests extends RefineTest {
             "          \"selectError\": true,\n" +
             "          \"selectTime\": true,\n" +
             "          \"name\": \"my column\",\n" +
-            "          \"from\": 1262443349000,\n" +
-            "          \"to\": 1514966950000,\n" +
+            "          \"from\": 1.262443349E12,\n" +
+            "          \"to\": 1.51496695E12,\n" +
             "          \"type\": \"timerange\",\n" +
             "          \"columnName\": \"my column\"\n" +
             "        }";

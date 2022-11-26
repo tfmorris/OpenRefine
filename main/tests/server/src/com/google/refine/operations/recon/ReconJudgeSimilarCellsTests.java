@@ -84,7 +84,7 @@ public class ReconJudgeSimilarCellsTests extends RefineTest {
                 + "\"columnName\":\"A\","
                 + "\"similarValue\":\"foo\","
                 + "\"judgment\":\"matched\","
-                + "\"match\":{\"id\":\"Q42\",\"name\":\"Douglas Adams\",\"types\":[\"Q5\"],\"score\":85},"
+                + "\"match\":{\"id\":\"Q42\",\"name\":\"Douglas Adams\",\"types\":[\"Q5\"],\"score\":85.0},"
                 + "\"shareNewTopics\":false"
                 + "}";
         TestUtils.isSerializedTo(ParsingUtilities.mapper.readValue(json, ReconJudgeSimilarCellsOperation.class), json);
