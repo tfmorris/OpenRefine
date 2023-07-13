@@ -1,0 +1,12 @@
+# see https://www.gitpod.io/docs/introduction/learn-gitpod/gitpod-yaml)
+# 
+# Learn more from ready-to-use templates: https://www.gitpod.io/docs/introduction/getting-started/quickstart
+
+tasks:
+  - init: ./refine build
+    command: ./refine -H `gp url 3333 | sed -e "s/https:\/\///"`
+
+ports:
+  - port: 3333
+
+
