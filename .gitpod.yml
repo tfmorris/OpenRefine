@@ -4,9 +4,10 @@
 
 tasks:
   - init: ./refine build
-    command: ./refine -H `gp url 3333 | sed -e "s/https:\/\///"`
+    command: |
+      host=`gp url 3333 | sed -e "s/https:\/\///"`
+      echo $host
+      ./refine -H $host
 
 ports:
   - port: 3333
-
-
