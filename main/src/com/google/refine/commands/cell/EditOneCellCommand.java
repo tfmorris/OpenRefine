@@ -92,9 +92,6 @@ public class EditOneCellCommand extends Command {
         }
 
         try {
-            request.setCharacterEncoding("UTF-8");
-            response.setCharacterEncoding("UTF-8");
-
             Project project = getProject(request);
 
             int rowIndex = Integer.parseInt(request.getParameter("row"));
@@ -137,7 +134,7 @@ public class EditOneCellCommand extends Command {
                 }
                 respondJSON(response, new EditResult("ok", historyEntry, process.newCell, pool));
             } else {
-                respond(response, "{ \"code\" : \"pending\" }");
+                respondPending(response);
             }
         } catch (Exception e) {
             respondException(response, e);

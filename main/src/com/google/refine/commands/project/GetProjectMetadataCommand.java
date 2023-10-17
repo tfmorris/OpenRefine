@@ -53,7 +53,7 @@ public class GetProjectMetadataCommand extends Command {
         try {
             project = getProject(request);
         } catch (ServletException e) {
-            respond(response, "error", e.getLocalizedMessage());
+            respondError(response, e.getLocalizedMessage());
             return;
         }
 

@@ -36,7 +36,6 @@ package com.google.refine.commands;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -46,7 +45,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
 import org.apache.velocity.VelocityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -276,48 +274,44 @@ public abstract class Command {
 
         HistoryEntry historyEntry = project.processManager.queueProcess(process);
         if (historyEntry != null) {
-            Writer w = response.getWriter();
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/json");
-            ParsingUtilities.defaultWriter.writeValue(w, new HistoryEntryResponse(historyEntry));
-
-            w.flush();
-            w.close();
+            respondJSON(response, new HistoryEntryResponse(historyEntry));
         } else {
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/json");
-            respond(response, "{ \"code\" : \"pending\" }");
+            respondPending(response);
         }
     }
 
+    static protected void respondOk(HttpServletResponse response) throws IOException {
+        respond(response, "ok", null);
+    }
+
+    // TODO: This seems unnecessary perhaps
+    static protected void respondOkDone(HttpServletResponse response) throws IOException {
+        respond(response, "ok", "done");
+    }
+
+    static protected void respondPending(HttpServletResponse response) throws IOException {
+        respond(response, "pending", null);
+    }
+
+    /**
+     * @deprecated use {@link #respondJSON(HttpServletResponse, Object)}
+     */
+    @Deprecated
     static protected void respond(HttpServletResponse response, String content)
             throws IOException, ServletException {
 
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-        Writer w = response.getWriter();
-        if (w != null) {
-            w.write(content);
-            w.flush();
-            w.close();
-        } else {
-            throw new ServletException("response returned a null writer");
-        }
+        HttpUtilities.respond(response, content);
     }
 
     static protected void respond(HttpServletResponse response, String status, String message)
             throws IOException {
 
-        Writer w = response.getWriter();
-        JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
-        writer.writeStartObject();
-        writer.writeStringField("status", status);
-        writer.writeStringField("message", message);
-        writer.writeEndObject();
-        writer.flush();
-        writer.close();
-        w.flush();
-        w.close();
+        Map<String, String> responseJSON = new HashMap<>();
+        responseJSON.put("code", status);
+        if (message != null) {
+            responseJSON.put("message", message);
+        }
+        respondJSON(response, responseJSON);
     }
 
     public static void respondJSON(HttpServletResponse response, Object o)
@@ -330,21 +324,30 @@ public abstract class Command {
             HttpServletResponse response, Object o, Properties options)
             throws IOException {
 
-        response.setCharacterEncoding("UTF-8");
-        response.setHeader("Content-Type", "application/json");
-        response.setHeader("Cache-Control", "no-cache");
-
-        Writer w = response.getWriter();
-        ParsingUtilities.defaultWriter.writeValue(w, o);
-
-        w.flush();
-        w.close();
+        // TODO: Inline the HttpUtilities code here when deprecation period expires
+        HttpUtilities.respondJSON(response, o, options);
     }
 
     static protected void respondCSRFError(HttpServletResponse response) throws IOException {
+        respondError(response, "Missing or invalid csrf_token parameter");
+    }
+
+    static protected void respondError(HttpServletResponse response, String message) throws IOException {
+        respondError(response, message, HttpServletResponse.SC_BAD_REQUEST);
+    }
+
+    static protected void respondError(HttpServletResponse response, String message, int statusCode) throws IOException {
+        respondError(response, message, statusCode, null);
+    }
+
+    static protected void respondError(HttpServletResponse response, String message, int statusCode, String stackTrace) throws IOException {
+        response.setStatus(statusCode);
         Map<String, String> responseJSON = new HashMap<>();
         responseJSON.put("code", "error");
-        responseJSON.put("message", "Missing or invalid csrf_token parameter");
+        responseJSON.put("message", message);
+        if (stackTrace != null) {
+            responseJSON.put("stack", stackTrace);
+        }
         respondJSON(response, responseJSON);
     }
 
@@ -358,26 +361,13 @@ public abstract class Command {
             throw new ServletException("Response object can't be null");
         }
 
-        response.setCharacterEncoding("UTF-8");
-        response.setHeader("Content-Type", "application/json");
-
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
-        pw.flush();
-        sw.flush();
-
-        Writer w = response.getWriter();
-        JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
-        writer.writeStartObject();
-        writer.writeStringField("code", "error");
-        writer.writeStringField("message", e.toString());
-        writer.writeStringField("stack", sw.toString());
-        writer.writeEndObject();
-        writer.flush();
-        writer.close();
-        w.flush();
-        w.close();
+        try (StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw)) {
+            e.printStackTrace(pw);
+            pw.flush();
+            sw.flush();
+            respondError(response, e.toString(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, sw.toString());
+        }
     }
 
     protected void respondWithErrorPage(

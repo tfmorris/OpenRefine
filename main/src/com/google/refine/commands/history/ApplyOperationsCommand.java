@@ -74,9 +74,9 @@ public class ApplyOperationsCommand extends Command {
             }
 
             if (project.processManager.hasPending()) {
-                respond(response, "{ \"code\" : \"pending\" }");
+                respondPending(response);
             } else {
-                respond(response, "{ \"code\" : \"ok\" }");
+                respondOk(response);
             }
         } catch (IOException e) {
             respondException(response, e);

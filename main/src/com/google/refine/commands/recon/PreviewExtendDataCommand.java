@@ -93,7 +93,7 @@ public class PreviewExtendDataCommand extends Command {
 
             String rowIndicesString = request.getParameter("rowIndices");
             if (rowIndicesString == null) {
-                respond(response, "{ \"code\" : \"error\", \"message\" : \"No row indices specified\" }");
+                respondError(response, "No row indices specified\" }");
                 return;
             }
 
@@ -114,8 +114,7 @@ public class PreviewExtendDataCommand extends Command {
                 StandardReconConfig scfg = (StandardReconConfig) cfg;
                 endpoint = scfg.service;
             } else {
-                respond(response,
-                        "{ \"code\" : \"error\", \"message\" : \"This column has not been reconciled with a standard service.\" }");
+                respondError(response, "This column has not been reconciled with a standard service.");
                 return;
             }
 

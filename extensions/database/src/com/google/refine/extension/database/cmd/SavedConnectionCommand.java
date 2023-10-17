@@ -65,6 +65,7 @@ public class SavedConnectionCommand extends DatabaseCommand {
 
         String connectionName = request.getParameter("connectionName");
         try {
+            // FIXME: use respondJSON()
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Type", "application/json");
             if (connectionName == null || connectionName.isEmpty()) {

@@ -58,7 +58,7 @@ public class RenameProjectCommand extends Command {
 
             pm.setName(name);
 
-            respond(response, "{ \"code\" : \"ok\" }");
+            respondOk(response);
         } catch (Exception e) {
             respondException(response, e);
         }

@@ -54,19 +54,16 @@ public class SetProjectMetadataCommand extends Command {
         ProjectMetadata meta = null;
 
         if (project == null) {
-            respond(response, "{ \"code\" : \"error\", \"message\" : \"Project cannot be found\" }");
+            respondError(response, "Project cannot be found\" }");
             return;
         }
 
         meta = project.getMetadata();
         try {
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/json");
-
             meta.setAnyField(metaName, valueString);
             ProjectManager.singleton.saveMetadata(meta, project.id);
 
-            respond(response, "{ \"code\" : \"ok\" }");
+            respondOk(response);
         } catch (Exception e) {
             respondException(response, e);
         }

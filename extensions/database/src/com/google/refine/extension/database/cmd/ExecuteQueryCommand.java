@@ -68,6 +68,7 @@ public class ExecuteQueryCommand extends DatabaseCommand {
 
         // ProjectManager.singleton.setBusy(true);
         try {
+            // FIXME: use respondJSON()
 
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Type", "application/json");

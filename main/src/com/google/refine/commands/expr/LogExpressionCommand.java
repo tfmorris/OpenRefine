@@ -65,9 +65,7 @@ public class LogExpressionCommand extends Command {
             }
             topList.add(expression);
 
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/json");
-            response.getWriter().write("{ \"code\" : \"ok\" }");
+            respondOk(response);
         } catch (Exception e) {
             respondException(response, e);
         }

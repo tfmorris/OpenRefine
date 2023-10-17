@@ -44,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.refine.commands.Command;
-import com.google.refine.commands.HttpUtilities;
 import com.google.refine.importing.ImportingController;
 import com.google.refine.importing.ImportingManager;
 import com.google.refine.util.ParsingUtilities;
@@ -63,15 +62,13 @@ public class ImportingControllerCommand extends Command {
 
         ImportingController controller = getController(request);
         if (controller != null) {
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/json");
             try {
                 controller.doPost(request, response);
             } catch (IOException e) {
-                HttpUtilities.respond(response, "error", e.getMessage());
+                respondError(response, e.getMessage());
             }
         } else {
-            HttpUtilities.respond(response, "error", "No such import controller");
+            respondError(response, "No such import controller");
         }
     }
 
@@ -81,11 +78,9 @@ public class ImportingControllerCommand extends Command {
 
         ImportingController controller = getController(request);
         if (controller != null) {
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/json");
             controller.doPost(request, response);
         } else {
-            HttpUtilities.respond(response, "error", "No such import controller");
+            respondError(response, "No such import controller");
         }
     }
 

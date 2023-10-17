@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.google.refine.commands.importing;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -57,10 +58,7 @@ public class CreateImportingJobCommand extends Command {
             return;
         }
 
-        long id = ImportingManager.createJob().id;
-
-        response.setCharacterEncoding("UTF-8");
-        response.setHeader("Content-Type", "application/json");
-        respond(response, "{ \"jobID\" : " + id + " }");
+        long jobId = ImportingManager.createJob().id;
+        respondJSON(response, Map.of("jobID", Long.toString(jobId)));
     }
 }

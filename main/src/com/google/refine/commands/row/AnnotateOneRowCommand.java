@@ -56,9 +56,6 @@ public class AnnotateOneRowCommand extends Command {
             return;
         }
 
-        response.setCharacterEncoding("UTF-8");
-        response.setHeader("Content-Type", "application/json");
-
         try {
             Project project = getProject(request);
 
@@ -94,7 +91,7 @@ public class AnnotateOneRowCommand extends Command {
                 return;
             }
 
-            respond(response, "{ \"code\" : \"error\", \"message\" : \"invalid command parameters\" }");
+            respondError(response, "invalid command parameters\" }");
 
         } catch (Exception e) {
             respondException(response, e);

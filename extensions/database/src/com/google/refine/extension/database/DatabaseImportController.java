@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 import com.google.refine.ProjectManager;
 import com.google.refine.ProjectMetadata;
 import com.google.refine.RefineServlet;
-import com.google.refine.commands.HttpUtilities;
+import com.google.refine.commands.Command;
 import com.google.refine.extension.database.model.DatabaseColumn;
 import com.google.refine.extension.database.model.DatabaseQueryInfo;
 import com.google.refine.importers.TabularImportingParserBase;
@@ -58,7 +58,7 @@ import com.google.refine.model.Project;
 import com.google.refine.util.JSONUtilities;
 import com.google.refine.util.ParsingUtilities;
 
-public class DatabaseImportController implements ImportingController {
+public class DatabaseImportController extends Command implements ImportingController {
 
     private static final Logger logger = LoggerFactory.getLogger("DatabaseImportController");
     protected RefineServlet servlet;
@@ -73,7 +73,7 @@ public class DatabaseImportController implements ImportingController {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpUtilities.respond(response, "error", "GET not implemented");
+        respondError(response, "GET not implemented");
     }
 
     @Override
@@ -82,7 +82,6 @@ public class DatabaseImportController implements ImportingController {
         if (logger.isDebugEnabled()) {
             logger.debug("doPost Query String::{}", request.getQueryString());
         }
-        response.setCharacterEncoding("UTF-8");
         Properties parameters = ParsingUtilities.parseUrlParameters(request);
 
         String subCommand = parameters.getProperty("subCommand");
@@ -100,12 +99,12 @@ public class DatabaseImportController implements ImportingController {
 
             } catch (DatabaseServiceException e) {
                 logger.error("doPost::DatabaseServiceException::{}", e);
-                HttpUtilities.respond(response, "error", getDbServiceException(e));
+                respondError(response, getDbServiceException(e));
             }
         } else if ("create-project".equals(subCommand)) {
             doCreateProject(request, response, parameters);
         } else {
-            HttpUtilities.respond(response, "error", "No such sub command");
+            respondError(response, "No such sub command");
         }
 
     }
@@ -149,8 +148,7 @@ public class DatabaseImportController implements ImportingController {
             logger.debug("doInitializeParserUI:::{}", result.toString());
         }
 
-        HttpUtilities.respond(response, result.toString());
-
+        respondJSON(response, result);
     }
 
     /**
@@ -173,14 +171,14 @@ public class DatabaseImportController implements ImportingController {
         long jobID = Long.parseLong(parameters.getProperty("jobID"));
         ImportingJob job = ImportingManager.getJob(jobID);
         if (job == null) {
-            HttpUtilities.respond(response, "error", "No such import job");
+            respondError(response, "No such import job");
             return;
         }
 
         DatabaseQueryInfo databaseQueryInfo = getQueryInfo(request);
 
         if (databaseQueryInfo == null) {
-            HttpUtilities.respond(response, "error", "Invalid or missing Query Info");
+            respondError(response, "Invalid or missing Query Info");
         }
 
         job.updating = true;
@@ -298,13 +296,13 @@ public class DatabaseImportController implements ImportingController {
         long jobID = Long.parseLong(parameters.getProperty("jobID"));
         final ImportingJob job = ImportingManager.getJob(jobID);
         if (job == null) {
-            HttpUtilities.respond(response, "error", "No such import job");
+            respondError(response, "No such import job");
             return;
         }
 
         final DatabaseQueryInfo databaseQueryInfo = getQueryInfo(request);
         if (databaseQueryInfo == null) {
-            HttpUtilities.respond(response, "error", "Invalid or missing Query Info");
+            respondError(response, "Invalid or missing Query Info");
         }
 
         job.updating = true;
@@ -358,7 +356,7 @@ public class DatabaseImportController implements ImportingController {
                 }
             }.start();
 
-            HttpUtilities.respond(response, "ok", "done");
+            respondOkDone(response);
         } catch (IOException e) {
             throw new ServletException(e);
         }

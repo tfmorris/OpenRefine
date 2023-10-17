@@ -65,9 +65,6 @@ public class PreviewWikibaseSchemaCommand extends Command {
         try {
             Project project = getProject(request);
 
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/json");
-
             String schemaJson = request.getParameter("schema");
             String manifestJson = request.getParameter("manifest");
             boolean slowMode = "true".equals(request.getParameter("slow_mode"));

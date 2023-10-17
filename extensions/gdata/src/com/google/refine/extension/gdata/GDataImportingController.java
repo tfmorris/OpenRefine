@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
 import com.google.refine.ProjectManager;
 import com.google.refine.ProjectMetadata;
 import com.google.refine.RefineServlet;
-import com.google.refine.commands.HttpUtilities;
+import com.google.refine.commands.Command;
 import com.google.refine.importing.DefaultImportingController;
 import com.google.refine.importing.ImportingController;
 import com.google.refine.importing.ImportingJob;
@@ -70,7 +70,7 @@ import com.google.refine.model.Project;
 import com.google.refine.util.JSONUtilities;
 import com.google.refine.util.ParsingUtilities;
 
-public class GDataImportingController implements ImportingController {
+public class GDataImportingController extends Command implements ImportingController {
 
     private static final Logger logger = LoggerFactory.getLogger("GDataImportingController");
     protected RefineServlet servlet;
@@ -83,14 +83,13 @@ public class GDataImportingController implements ImportingController {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpUtilities.respond(response, "error", "GET not implemented");
+        respondError(response, "GET not implemented");
     }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setCharacterEncoding("UTF-8");
         Properties parameters = ParsingUtilities.parseUrlParameters(request);
         String subCommand = parameters.getProperty("subCommand");
         if ("list-documents".equals(subCommand)) {
@@ -102,7 +101,7 @@ public class GDataImportingController implements ImportingController {
         } else if ("create-project".equals(subCommand)) {
             doCreateProject(request, response, parameters);
         } else {
-            HttpUtilities.respond(response, "error", "No such sub command");
+            respondError(response, "No such sub command");
         }
     }
 
@@ -111,7 +110,7 @@ public class GDataImportingController implements ImportingController {
 
         String token = TokenCookie.getToken(request);
         if (token == null) {
-            HttpUtilities.respond(response, "error", "Not authorized");
+            respondError(response, "Not authorized");
             return;
         }
 
@@ -210,7 +209,7 @@ public class GDataImportingController implements ImportingController {
             // No metadata for a fusion table.
         }
 
-        HttpUtilities.respond(response, result.toString());
+        respondJSON(response, result);
     }
 
     private List<Sheet> getWorksheetEntriesForDoc(String token, String spreadsheetId) throws IOException {
@@ -235,7 +234,7 @@ public class GDataImportingController implements ImportingController {
         long jobID = Long.parseLong(parameters.getProperty("jobID"));
         ImportingJob job = ImportingManager.getJob(jobID);
         if (job == null) {
-            HttpUtilities.respond(response, "error", "No such import job");
+            respondError(response, "No such import job");
             return;
         }
 
@@ -293,7 +292,7 @@ public class GDataImportingController implements ImportingController {
         long jobID = Long.parseLong(parameters.getProperty("jobID"));
         final ImportingJob job = ImportingManager.getJob(jobID);
         if (job == null) {
-            HttpUtilities.respond(response, "error", "No such import job");
+            respondError(response, "No such import job");
             return;
         }
 
@@ -345,6 +344,6 @@ public class GDataImportingController implements ImportingController {
             }
         }.start();
 
-        HttpUtilities.respond(response, "ok", "done");
+        respondOkDone(response);
     }
 }

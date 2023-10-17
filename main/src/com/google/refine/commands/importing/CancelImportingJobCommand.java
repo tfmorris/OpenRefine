@@ -40,7 +40,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.refine.commands.Command;
-import com.google.refine.commands.HttpUtilities;
 import com.google.refine.importing.ImportingJob;
 import com.google.refine.importing.ImportingManager;
 
@@ -57,13 +56,13 @@ public class CancelImportingJobCommand extends Command {
         long jobID = Long.parseLong(request.getParameter("jobID"));
         ImportingJob job = ImportingManager.getJob(jobID);
         if (job == null) {
-            HttpUtilities.respond(response, "error", "No such import job");
+            respondError(response, "No such import job");
         } else {
             job.canceled = true;
 
             ImportingManager.disposeJob(jobID);
 
-            HttpUtilities.respond(response, "ok", "Job canceled");
+            respond(response, "ok", "Job canceled");
         }
     }
 }

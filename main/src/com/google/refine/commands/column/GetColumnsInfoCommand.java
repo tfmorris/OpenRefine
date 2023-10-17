@@ -59,6 +59,7 @@ public class GetColumnsInfoCommand extends Command {
             throws ServletException, IOException {
 
         try {
+            // FIXME: use respondJSON()
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Type", "application/json");
 

@@ -33,16 +33,15 @@ package com.google.refine.extension.gdata;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
@@ -56,12 +55,10 @@ import org.slf4j.LoggerFactory;
 import com.google.refine.ProjectManager;
 import com.google.refine.browsing.Engine;
 import com.google.refine.commands.Command;
-import com.google.refine.commands.HttpUtilities;
 import com.google.refine.commands.project.ExportRowsCommand;
 import com.google.refine.exporters.CustomizableTabularExporterUtilities;
 import com.google.refine.io.FileProjectManager;
 import com.google.refine.model.Project;
-import com.google.refine.util.ParsingUtilities;
 
 public class UploadCommand extends Command {
 
@@ -81,7 +78,7 @@ public class UploadCommand extends Command {
 
         String token = TokenCookie.getToken(request);
         if (token == null) {
-            HttpUtilities.respond(response, "error", "Not authorized");
+            respondError(response, "Not authorized");
             return;
         }
 
@@ -92,40 +89,23 @@ public class UploadCommand extends Command {
             Properties params = ExportRowsCommand.getRequestParameters(request);
             String name = params.getProperty("name");
 
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/json");
-
-            Writer w = response.getWriter();
-            JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
             try {
-                writer.writeStartObject();
-
-                List<Exception> exceptions = new LinkedList<Exception>();
+                List<Exception> exceptions = new LinkedList<>();
                 String url = upload(project, engine, params, token, name, exceptions);
                 // The URL can be non-null even if it doesn't fail
                 if (url != null && exceptions.size() == 0) {
-                    writer.writeStringField("status", "ok");
-                    writer.writeStringField("url", url);
+                    respondJSON(response, Map.of("status", "ok", "url", url));
                 } else if (exceptions.size() == 0) {
-                    writer.writeStringField("status", "error");
-                    writer.writeStringField("message", "No such format");
+                    respondError(response, "No such format");
                 } else {
                     for (Exception e : exceptions) {
                         logger.warn(e.getLocalizedMessage(), e);
                     }
-                    writer.writeStringField("status", "error");
-                    writer.writeStringField("message", exceptions.get(0).getLocalizedMessage());
+                    respondError(response, exceptions.get(0).getLocalizedMessage());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                writer.writeStringField("status", "error");
-                writer.writeStringField("message", e.getMessage());
-            } finally {
-                writer.writeEndObject();
-                writer.flush();
-                writer.close();
-                w.flush();
-                w.close();
+                respondError(response, e.getMessage());
             }
         } catch (Exception e) {
             throw new ServletException(e);

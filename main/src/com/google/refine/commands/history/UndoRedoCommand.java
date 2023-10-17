@@ -73,7 +73,10 @@ public class UndoRedoCommand extends Command {
                     project.processManager.queueProcess(
                             new HistoryProcess(project, lastDoneID));
 
-            respond(response, "{ \"code\" : " + (done ? "\"ok\"" : "\"pending\"") + " }");
+            if (done) {
+                respondOk(response);
+            } else
+                respondPending(response);
         } catch (Exception e) {
             respondException(response, e);
         }

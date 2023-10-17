@@ -62,9 +62,8 @@ public class CancelProcessesCommand extends Command {
             Project project = getProject(request);
             project.getProcessManager().cancelAll();
 
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/json");
-            response.getWriter().write("{ \"code\" : \"ok\" }");
+            respondOk(response);
+
         } catch (Exception e) {
             respondException(response, e);
         }

@@ -52,12 +52,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.google.refine.RefineServlet;
 import com.google.refine.commands.Command;
-import com.google.refine.commands.HttpUtilities;
 import com.google.refine.importing.ImportingManager.Format;
 import com.google.refine.util.JSONUtilities;
 import com.google.refine.util.ParsingUtilities;
 
-public class DefaultImportingController implements ImportingController {
+public class DefaultImportingController extends Command implements ImportingController {
 
     protected RefineServlet servlet;
 
@@ -94,7 +93,7 @@ public class DefaultImportingController implements ImportingController {
         } else if ("create-project".equals(subCommand)) {
             doCreateProject(request, response, parameters);
         } else {
-            HttpUtilities.respond(response, "error", "No such sub command");
+            respondError(response, "No such sub command");
         }
     }
 
@@ -104,14 +103,14 @@ public class DefaultImportingController implements ImportingController {
         long jobID = Long.parseLong(parameters.getProperty("jobID"));
         ImportingJob job = ImportingManager.getJob(jobID);
         if (job == null) {
-            HttpUtilities.respond(response, "error", "No such import job");
+            respondError(response, "No such import job");
             return;
         }
 
         job.updating = true;
         ObjectNode config = job.getOrCreateDefaultConfig();
         if (!("new".equals(JSONUtilities.getString(config, "state", null)))) {
-            HttpUtilities.respond(response, "error", "Job already started; cannot load more data");
+            respondError(response, "Job already started; cannot load more data");
             return;
         }
 
@@ -127,14 +126,14 @@ public class DefaultImportingController implements ImportingController {
         long jobID = Long.parseLong(parameters.getProperty("jobID"));
         ImportingJob job = ImportingManager.getJob(jobID);
         if (job == null) {
-            HttpUtilities.respond(response, "error", "No such import job");
+            respondError(response, "No such import job");
             return;
         }
 
         job.updating = true;
         ObjectNode config = job.getOrCreateDefaultConfig();
         if (!("ready".equals(JSONUtilities.getString(config, "state", null)))) {
-            HttpUtilities.respond(response, "error", "Job not ready");
+            respondError(response, "Job not ready");
             return;
         }
 
@@ -154,14 +153,14 @@ public class DefaultImportingController implements ImportingController {
         long jobID = Long.parseLong(parameters.getProperty("jobID"));
         ImportingJob job = ImportingManager.getJob(jobID);
         if (job == null) {
-            HttpUtilities.respond(response, "error", "No such import job");
+            respondError(response, "No such import job");
             return;
         }
 
         job.updating = true;
         ObjectNode config = job.getOrCreateDefaultConfig();
         if (!("ready".equals(JSONUtilities.getString(config, "state", null)))) {
-            HttpUtilities.respond(response, "error", "Job not ready");
+            respondError(response, "Job not ready");
             return;
         }
 
@@ -206,7 +205,7 @@ public class DefaultImportingController implements ImportingController {
         long jobID = Long.parseLong(parameters.getProperty("jobID"));
         ImportingJob job = ImportingManager.getJob(jobID);
         if (job == null) {
-            HttpUtilities.respond(response, "error", "No such import job");
+            respondError(response, "No such import job");
             return;
         }
 
@@ -221,7 +220,7 @@ public class DefaultImportingController implements ImportingController {
 
             Command.respondJSON(response, result);
         } else {
-            HttpUtilities.respond(response, "error", "Unrecognized format or format has no parser");
+            respondError(response, "Unrecognized format or format has no parser");
         }
     }
 
@@ -231,7 +230,7 @@ public class DefaultImportingController implements ImportingController {
         long jobID = Long.parseLong(parameters.getProperty("jobID"));
         ImportingJob job = ImportingManager.getJob(jobID);
         if (job == null) {
-            HttpUtilities.respond(response, "error", "No such import job");
+            respondError(response, "No such import job");
             return;
         }
 
@@ -239,7 +238,7 @@ public class DefaultImportingController implements ImportingController {
         job.touch();
         ObjectNode config = job.getOrCreateDefaultConfig();
         if (!("ready".equals(JSONUtilities.getString(config, "state", null)))) {
-            HttpUtilities.respond(response, "error", "Job not ready");
+            respondError(response, "Job not ready");
             return;
         }
 
@@ -251,7 +250,7 @@ public class DefaultImportingController implements ImportingController {
 
         ImportingUtilities.createProject(job, format, optionObj, exceptions, false);
 
-        HttpUtilities.respond(response, "ok", "done");
+        respondOkDone(response);
     }
 
     protected static class JobResponse {

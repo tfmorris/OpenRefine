@@ -161,6 +161,7 @@ public class GetRowsCommand extends Command {
              */
 
             response.setCharacterEncoding("UTF-8");
+            // TODO: migrate this to use our respondJSON() et al methods
             response.setHeader("Content-Type", callback == null ? "application/json" : "text/javascript");
 
             PrintWriter writer = response.getWriter();

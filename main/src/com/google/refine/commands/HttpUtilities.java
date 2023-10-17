@@ -45,10 +45,19 @@ import org.slf4j.LoggerFactory;
 import com.google.refine.RefineServlet;
 import com.google.refine.util.ParsingUtilities;
 
+/**
+ * @deprecated deprecated for v3.8. All methods have been deprecated and this class will be removed. Most users should
+ *             be extending {@link Command} to get access to this functionality.
+ */
+@Deprecated
 abstract public class HttpUtilities {
 
     final static protected Logger logger = LoggerFactory.getLogger("command");
 
+    /**
+     * @deprecated deprecated for v3.8. No internal uses. Move to {@link Command} when deprecation period expires.
+     */
+    @Deprecated
     static public void respond(HttpServletResponse response, String content)
             throws IOException, ServletException {
 
@@ -64,6 +73,10 @@ abstract public class HttpUtilities {
         }
     }
 
+    /**
+     * @deprecated deprecated for v3.8. No internal uses. Move to {@link Command} when deprecation period expires.
+     */
+    @Deprecated
     static public void respond(HttpServletResponse response, String status, String message)
             throws IOException {
 
@@ -79,12 +92,20 @@ abstract public class HttpUtilities {
         w.close();
     }
 
+    /**
+     * @deprecated deprecated for v3.8. No internal uses. Move to {@link Command} when deprecation period expires.
+     */
+    @Deprecated
     static public void respondJSON(HttpServletResponse response, Object o)
             throws IOException {
 
         respondJSON(response, o, new Properties());
     }
 
+    /**
+     * @deprecated deprecated for v3.8. No internal uses. Move to {@link Command} when deprecation period expires.
+     */
+    @Deprecated
     static public void respondJSON(
             HttpServletResponse response, Object o, Properties options)
             throws IOException {
@@ -98,6 +119,10 @@ abstract public class HttpUtilities {
         w.close();
     }
 
+    /**
+     * @deprecated deprecated for v3.8. No internal uses.
+     */
+    @Deprecated
     static public void respondException(HttpServletResponse response, Exception e)
             throws IOException, ServletException {
 
@@ -129,10 +154,19 @@ abstract public class HttpUtilities {
         w.close();
     }
 
+    /**
+     * @deprecated deprecated for v3.8. No internal uses.
+     */
+    @Deprecated
     static public void redirect(HttpServletResponse response, String url) throws IOException {
         response.sendRedirect(url);
     }
 
+    /**
+     * @deprecated deprecated for v3.8. No internal uses. There is an implementation in the {@link Command} class for
+     *             commands which need it.
+     */
+    @Deprecated
     static public int getIntegerParameter(HttpServletRequest request, String name, int def) {
         if (request == null) {
             throw new IllegalArgumentException("parameter 'request' should not be null");
@@ -145,6 +179,10 @@ abstract public class HttpUtilities {
         return def;
     }
 
+    /**
+     * @deprecated deprecated for v3.8. No internal uses.
+     */
+    @Deprecated
     static public void respondWithErrorPage(
             RefineServlet servlet,
             HttpServletRequest request,
@@ -155,6 +193,10 @@ abstract public class HttpUtilities {
                 HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
     }
 
+    /**
+     * @deprecated deprecated for v3.8. Only internal use is invocation directly above
+     */
+    @Deprecated
     static public void respondWithErrorPage(
             RefineServlet servlet,
             HttpServletRequest request,

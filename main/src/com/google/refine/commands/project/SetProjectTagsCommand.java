@@ -51,13 +51,11 @@ public class SetProjectTagsCommand extends Command {
             return;
         }
 
-        response.setHeader("Content-Type", "application/json");
-
         Project project;
         try {
             project = getProject(request);
         } catch (ServletException e) {
-            respond(response, "error", e.getLocalizedMessage());
+            respondError(response, e.getLocalizedMessage());
             return;
         }
 
@@ -103,6 +101,6 @@ public class SetProjectTagsCommand extends Command {
         // Let's update the project tags
         metadata.setTags(polishedTags.toArray(new String[polishedTags.size()]));
 
-        respond(response, "{ \"code\" : \"ok\" }");
+        respondOk(response);
     }
 }

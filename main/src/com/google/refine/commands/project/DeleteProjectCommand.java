@@ -54,7 +54,6 @@ public class DeleteProjectCommand extends Command {
             return;
         }
 
-        response.setHeader("Content-Type", "application/json");
         try {
             long projectID = Long.parseLong(request.getParameter("project"));
 
@@ -75,7 +74,7 @@ public class DeleteProjectCommand extends Command {
 
             ProjectManager.singleton.deleteProject(projectID);
 
-            respond(response, "{ \"code\" : \"ok\" }");
+            respondOk(response);
 
         } catch (Exception e) {
             respondException(response, e);

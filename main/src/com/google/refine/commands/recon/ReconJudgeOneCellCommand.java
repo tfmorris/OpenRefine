@@ -67,7 +67,6 @@ public class ReconJudgeOneCellCommand extends Command {
 
         try {
             request.setCharacterEncoding("UTF-8");
-            response.setCharacterEncoding("UTF-8");
 
             Project project = getProject(request);
 
@@ -111,7 +110,7 @@ public class ReconJudgeOneCellCommand extends Command {
 
                 respondJSON(response, new ReconClearOneCellCommand.CellResponse(historyEntry, process.newCell, pool));
             } else {
-                respond(response, "{ \"code\" : \"pending\" }");
+                respondPending(response);
             }
         } catch (Exception e) {
             respondException(response, e);

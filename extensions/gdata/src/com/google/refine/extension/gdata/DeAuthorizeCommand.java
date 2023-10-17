@@ -53,9 +53,6 @@ public class DeAuthorizeCommand extends Command {
             throws ServletException, IOException {
 
         try {
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/json");
-
             String sessionToken = TokenCookie.getToken(request);
             if (sessionToken != null) {
 

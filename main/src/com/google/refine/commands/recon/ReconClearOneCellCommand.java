@@ -109,7 +109,7 @@ public class ReconClearOneCellCommand extends Command {
 
                 respondJSON(response, new CellResponse(historyEntry, process.newCell, pool));
             } else {
-                respond(response, "{ \"code\" : \"pending\" }");
+                respondPending(response);
             }
         } catch (Exception e) {
             respondException(response, e);
