@@ -67,6 +67,7 @@ public class GetColumnsInfoCommand extends Command {
 
             JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(response.getWriter());
 
+            // FIXME: Returns a top-level JSON array with no other info
             writer.writeStartArray();
             for (Column column : project.columnModel.columns) {
                 writer.writeStartObject();

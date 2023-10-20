@@ -36,7 +36,10 @@ package com.google.refine.commands;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -45,6 +48,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonGenerator;
 import org.apache.velocity.VelocityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -367,6 +371,42 @@ public abstract class Command {
             pw.flush();
             sw.flush();
             respondError(response, e.toString(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, sw.toString());
+        }
+    }
+
+    // TODO: Version of above which supports a list of exceptions formatted as the {@link DefaultImportingController}
+    static protected void respondExceptions(HttpServletResponse response, List<Exception> exceptions)
+            throws IOException, ServletException {
+        Writer w = response.getWriter();
+        JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
+        writer.writeStringField("status", "error");
+        writer.writeArrayFieldStart("errors");
+        getErrorArray(exceptions);
+        writer.writeEndArray();
+    }
+
+    static public Map[] getErrorArray(List<Exception> exceptions) throws IOException {
+        // TODO: to be nested inside an 'errors: []' array on the JSON
+        List<Map> errors = new ArrayList<>();
+        for (Exception e : exceptions) {
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            errors.add(
+                    Map.of("message", e.getLocalizedMessage(),
+                            "stack", sw.toString()));
+        }
+        return errors.toArray(new Map[errors.size()]);
+    }
+
+    static public void writeErrors(JsonGenerator writer, List<Exception> exceptions) throws IOException {
+        for (Exception e : exceptions) {
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+
+            writer.writeStartObject();
+            writer.writeStringField("message", e.getLocalizedMessage());
+            writer.writeStringField("stack", sw.toString());
+            writer.writeEndObject();
         }
     }
 

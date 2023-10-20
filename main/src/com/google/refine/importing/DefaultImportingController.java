@@ -36,7 +36,6 @@ package com.google.refine.importing;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -168,32 +167,19 @@ public class DefaultImportingController extends Command implements ImportingCont
         ObjectNode optionObj = ParsingUtilities.evaluateJsonStringToObjectNode(
                 request.getParameter("options"));
 
-        List<Exception> exceptions = new LinkedList<Exception>();
+        List<Exception> exceptions = new LinkedList<>();
 
         ImportingUtilities.previewParse(job, format, optionObj, exceptions);
 
-        Writer w = response.getWriter();
-        JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
         try {
-            writer.writeStartObject();
             if (exceptions.size() == 0) {
                 job.project.update(); // update all internal models, indexes, caches, etc.
-
-                writer.writeStringField("status", "ok");
+                respondOk(response);
             } else {
-                writer.writeStringField("status", "error");
-                writer.writeArrayFieldStart("errors");
-                writeErrors(writer, exceptions);
-                writer.writeEndArray();
+                respondExceptions(response, exceptions);
             }
-            writer.writeEndObject();
-            writer.flush();
-            writer.close();
         } catch (IOException e) {
             throw new ServletException(e);
-        } finally {
-            w.flush();
-            w.close();
         }
         job.touch();
         job.updating = false;
@@ -279,10 +265,7 @@ public class DefaultImportingController extends Command implements ImportingCont
     private void replyWithJobData(HttpServletRequest request, HttpServletResponse response, ImportingJob job)
             throws ServletException, IOException {
 
-        Writer w = response.getWriter();
-        ParsingUtilities.defaultWriter.writeValue(w, new JobResponse("ok", job));
-        w.flush();
-        w.close();
+        respondJSON(response, new JobResponse("ok", job));
     }
 
     static public void writeErrors(JsonGenerator writer, List<Exception> exceptions) throws IOException {
