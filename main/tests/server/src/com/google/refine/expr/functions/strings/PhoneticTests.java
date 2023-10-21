@@ -29,9 +29,10 @@ package com.google.refine.expr.functions.strings;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
 import com.google.refine.RefineTest;
-import com.google.refine.util.TestUtils;
 import com.google.refine.expr.EvalError;
+import com.google.refine.util.TestUtils;
 
 public class PhoneticTests extends RefineTest {
 
