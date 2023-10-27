@@ -132,28 +132,38 @@ public class Scanner {
                 _index++;
             }
 
-            if (_index + 1 < _limit && (c == '.' /* || c == 'e' */)
-                    && Character.isDigit(_text.charAt(_index + 1))) {
-                double value2 = value;
-                if (c == '.') {
+            // Floating point number or scientific notation
+            if (_index + 1 < _limit && (c == '.' || ((c == 'e' || c == 'E')))) {
+                char next = _text.charAt(_index + 1);
+                if (c != '.' && (next == '+' || next == '-')) {
                     _index++;
-
-                    double division = 1;
-                    while (_index < _limit && Character.isDigit(c = _text.charAt(_index))) {
-                        value2 = value2 * 10 + (c - '0');
-                        division *= 10;
-                        _index++;
-                    }
-                    value2 /= division;
-                } else if (c == 'e') {
-                    // TODO: support scientific notation
                 }
 
-                return new NumberToken(
-                        start,
-                        _index,
-                        _text.substring(start, _index),
-                        value2);
+                _index++;
+                while (_index < _limit && Character.isDigit(c = _text.charAt(_index))) {
+                    _index++;
+                }
+                if (c == 'e' || c == 'E') {
+                    c = _text.charAt(++_index);
+                    if (c == '+' || c == '-') {
+                        c = _text.charAt(++_index);
+                    }
+                    // scan for end of digits being careful that a digit follows a decimal point
+                    // (although this won't catch cases like 1.1.1)
+                    while (_index < _limit && (Character.isDigit(c) || (c == '.') && Character.isDigit(_text.charAt(_index + 1)))) {
+                        c = _text.charAt(_index++);
+                    }
+                }
+
+                try {
+                    return new NumberToken(
+                            start,
+                            _index,
+                            _text.substring(start, _index),
+                            Double.valueOf(_text.substring(start, _index)));
+                } catch (NumberFormatException e) {
+                    detail = "Bad floating point number or scientific notation";
+                }
             } else {
                 return new NumberToken(
                         start,
