@@ -42,7 +42,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.doc.table.OdfTable;
 import org.slf4j.LoggerFactory;
@@ -57,7 +56,6 @@ import com.google.refine.ProjectManagerStub;
 import com.google.refine.ProjectMetadata;
 import com.google.refine.RefineTest;
 import com.google.refine.browsing.Engine;
-import com.google.refine.browsing.Engine.Mode;
 import com.google.refine.model.Cell;
 import com.google.refine.model.Column;
 import com.google.refine.model.ModelException;

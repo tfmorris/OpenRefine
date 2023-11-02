@@ -39,7 +39,6 @@ import org.testng.annotations.Test;
 import com.google.refine.RefineTest;
 import com.google.refine.browsing.Engine;
 import com.google.refine.browsing.RowFilter;
-import com.google.refine.browsing.facets.ScatterplotFacet;
 import com.google.refine.browsing.facets.ScatterplotFacet.ScatterplotFacetConfig;
 import com.google.refine.model.Cell;
 import com.google.refine.model.Project;

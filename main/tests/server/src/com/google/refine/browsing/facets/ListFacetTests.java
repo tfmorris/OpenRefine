@@ -35,7 +35,6 @@ import org.testng.annotations.Test;
 
 import com.google.refine.RefineTest;
 import com.google.refine.browsing.Engine;
-import com.google.refine.browsing.facets.Facet;
 import com.google.refine.browsing.facets.ListFacet.ListFacetConfig;
 import com.google.refine.model.Project;
 import com.google.refine.util.ParsingUtilities;
