@@ -439,7 +439,8 @@ ClusteringDialog.prototype._cluster = function() {
     var self = this;
 
     var container = this._elmts.tableContainer.html(
-        '<div style="margin: 1em; font-size: 130%; color: #888;">'+$.i18n('core-dialogs/clustering')+'<span class="loader small"></span></div>'
+        '<div style="margin: 1em; font-size: 130%; color: #888;">'+$.i18n('core-dialogs/clustering')+
+        '<div class="loader small"></div>'
     );
 
     this._elmts.resultSummary.empty();

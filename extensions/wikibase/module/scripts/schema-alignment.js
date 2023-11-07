@@ -97,19 +97,15 @@ SchemaAlignment.setUpTabs = function() {
         .addClass('schema-alignment-total-warning-count')
         .appendTo(issuesButton)
         .hide();
-  this.issueSpinner = $('<img />')
-        .attr('src', 'images/large-spinner.gif')
-        .attr('width', '16px')
+  this.issueSpinner = $('<div class="loader small"></div>')
         .appendTo(issuesButton);
   var previewButton = $('<div></div>')
         .addClass('main-view-panel-tab-header')
         .attr('href', '#wikibase-preview-panel')
         .text($.i18n('wikibase-schema/edits-preview-tab-header'))
         .appendTo(this._toolPanel);
-  this.previewSpinner = $('<img />')
-        .attr('src', 'images/large-spinner.gif')
-        .attr('width', '16px')
-        .appendTo(previewButton);
+  this.previewSpinner = $('<div class="loader small"></div>')
+      .appendTo(previewButton);
 
   // Add common refresh icon to extension bar
   this.commonRefreshIcon = $('<button type="button"></button>')

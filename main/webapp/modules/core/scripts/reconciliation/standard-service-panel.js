@@ -410,8 +410,9 @@ ReconStandardServicePanel.prototype.start = function() {
 ReconStandardServicePanel.prototype.showBusyReconciling = function(message) {
   var frame = document.getElementsByClassName("type-container")[0];
 
-  var body = $('<div>').attr('id', 'loading-message').appendTo(frame);
-  $('<span>').addClass('loader').appendTo(body);
+  let body = $('<div>').attr('id', 'loading-message').appendTo(frame);
+  let spinner = $('<div>').addClass('loader')
+  spinner.appendTo(body);
 
   return function() {
     $(body).remove()

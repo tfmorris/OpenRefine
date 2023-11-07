@@ -499,28 +499,36 @@ p.body-text {
   padding: var(--padding-loose);
 }
 
+/* Black rectangle spinner */
+/* HTML: <div class="loader"></div> */
 .loader {
   width: 32px;
-  height: 32px;
-  border: 4px dotted var(--loading-spinner-foreground);
-  border-radius: 50%;
-  display: inline-block;
+  aspect-ratio: 1;
+  display: inline-grid;
   position: relative;
-  box-sizing: border-box;
-  animation: rotation 2s linear infinite;
+  border-radius: 50%;
+  background:
+          linear-gradient(0deg ,rgb(var(--loading-spinner-foreground)/50%) 30%,#0000 0 70%,rgb(var(--loading-spinner-foreground)/100%) 0) 50%/8% 100%,
+          linear-gradient(90deg,rgb(var(--loading-spinner-foreground)/25%) 30%,#0000 0 70%,rgb(var(--loading-spinner-foreground)/75% ) 0) 50%/100% 8%;
+  background-repeat: no-repeat;
+  animation: l23 1s infinite steps(12);
 }
-
+.loader::before,
+.loader::after {
+  content: "";
+  grid-area: 1/1;
+  border-radius: 50%;
+  background: inherit;
+  opacity: 0.915;
+  transform: rotate(30deg);
+}
+.loader::after {
+  opacity: 0.83;
+  transform: rotate(60deg);
+}
 .loader.small {
   width: 16px;
-  height: 16px;
-  border: 2px dotted var(--loading-spinner-foreground);
 }
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+@keyframes l23 {
+  100% {transform: rotate(1turn)}
 }
