@@ -110,6 +110,7 @@ public class SavedConnectionCommand extends DatabaseCommand {
 
         } catch (Exception e) {
             logger.error("Exception while Deleting Connection with name: {}, error:{}", connectionName, e);
+            respondException(response, e);
         }
     }
 
@@ -123,6 +124,7 @@ public class SavedConnectionCommand extends DatabaseCommand {
     private void writeSavedConnectionResponse(HttpServletResponse response, DatabaseConfiguration savedConnection) throws IOException {
         Writer w = response.getWriter();
         try {
+            // FIXME: use respondJSON()
             JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
 
             writer.writeStartObject();
@@ -318,6 +320,7 @@ public class SavedConnectionCommand extends DatabaseCommand {
             error = true;
         }
         if (error) {
+            // TODO: I18N
             sb.append(" is missing");
             logger.debug("Connection Parameter errors::{}", sb.toString());
             response.sendError(HttpStatus.SC_BAD_REQUEST, sb.toString());
@@ -341,6 +344,7 @@ public class SavedConnectionCommand extends DatabaseCommand {
 
         } catch (Exception e) {
             logger.error("Exception while loading settings {}", e);
+            respondException(response, e);
         }
     }
 

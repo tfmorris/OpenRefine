@@ -149,6 +149,7 @@ public class GetRowsCommand extends Command {
             }
 
             Engine engine = getEngine(request, project);
+            // FIXME: JSONP callbacks no longer supported?
             String callback = request.getParameter("callback");
 
             int start = Math.min(project.rows.size(), Math.max(0, getIntegerParameter(request, "start", 0)));
@@ -160,11 +161,13 @@ public class GetRowsCommand extends Command {
              * options.put("reconCandidateOmitTypes", true); options.put("pool", pool);
              */
 
+            // TODO: migrate this to use our respondJSON() et al methods?
             response.setCharacterEncoding("UTF-8");
-            // TODO: migrate this to use our respondJSON() et al methods
+
             response.setHeader("Content-Type", callback == null ? "application/json" : "text/javascript");
 
             PrintWriter writer = response.getWriter();
+            // FIXME: JSONP no longer supported?
             if (callback != null) {
                 writer.write(callback);
                 writer.write("(");
