@@ -62,7 +62,6 @@ import com.google.refine.ProjectManager;
 import com.google.refine.ProjectMetadata;
 import com.google.refine.RefineServlet;
 import com.google.refine.commands.Command;
-import com.google.refine.importing.DefaultImportingController;
 import com.google.refine.importing.ImportingController;
 import com.google.refine.importing.ImportingJob;
 import com.google.refine.importing.ImportingManager;
@@ -255,29 +254,15 @@ public class GDataImportingController extends Command implements ImportingContro
                 optionObj,
                 exceptions);
 
-        Writer w = response.getWriter();
-        JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
         try {
-            writer.writeStartObject();
             if (exceptions.size() == 0) {
                 job.project.update(); // update all internal models, indexes, caches, etc.
-
-                writer.writeStringField("status", "ok");
+                respondOk(response);
             } else {
-                writer.writeStringField("status", "error");
-
-                writer.writeArrayFieldStart("errors");
-                DefaultImportingController.writeErrors(writer, exceptions);
-                writer.writeEndArray();
+                respondExceptions(response, exceptions);
             }
-            writer.writeEndObject();
         } catch (IOException e) {
             throw new ServletException(e);
-        } finally {
-            writer.flush();
-            writer.close();
-            w.flush();
-            w.close();
         }
 
         job.touch();
