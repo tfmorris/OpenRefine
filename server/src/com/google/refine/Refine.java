@@ -39,8 +39,10 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.Writer;
 import java.net.BindException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,6 +52,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.swing.JFrame;
 
 import com.google.util.threads.ThreadPoolExecutorAdapter;
@@ -57,14 +60,17 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.config.Configurator;
+import org.eclipse.jetty.server.Dispatcher;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.unixdomain.server.UnixDomainServerConnector;
 import org.eclipse.jetty.util.Scanner;
+import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
@@ -231,6 +237,7 @@ class RefineServer extends Server {
         logger.info("Initializing context: '" + contextPath + "' from '" + webapp.getAbsolutePath() + "'");
         WebAppContext context = new WebAppContext(webapp.getAbsolutePath(), contextPath);
         context.setMaxFormContentSize(maxFormContentSize);
+        context.setErrorHandler(new RefineErrorHandler());
 
         if ("*".equals(host)) {
             this.setHandler(context);
@@ -576,6 +583,59 @@ class ShutdownSignalHandler implements Runnable {
             e.printStackTrace();
             System.exit(1);
         }
+    }
+
+}
+
+class RefineErrorHandler extends ErrorHandler {
+
+    @Override
+    protected void writeErrorPageHead(HttpServletRequest request, Writer writer, int code, String message)
+            throws IOException {
+        Charset charset = (Charset) request.getAttribute(ERROR_CHARSET);
+        if (charset != null) {
+            writer.write("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=");
+            writer.write(charset.name());
+            writer.write("\"/>\n");
+        }
+        writer.write("<title>OpenRefine Error ");
+        writer.write(Integer.toString(code));
+        writer.write("</title>\n");
+    }
+
+    @Override
+    protected void writeErrorPageMessage(HttpServletRequest request, Writer writer, int code, String message, String uri)
+            throws IOException {
+        writer.write("<h2>OpenRefine Error ");
+        String status = Integer.toString(code);
+        writer.write(status);
+        writer.write("</h2>\n");
+
+        writer.write("<table>\n");
+        htmlRow(writer, "URI", uri);
+        htmlRow(writer, "STATUS", status);
+        htmlRow(writer, "MESSAGE", message);
+        if (isShowServlet()) {
+            htmlRow(writer, "SERVLET", request.getAttribute(Dispatcher.ERROR_SERVLET_NAME));
+        }
+        Throwable cause = (Throwable) request.getAttribute(Dispatcher.ERROR_EXCEPTION);
+        while (cause != null) {
+            htmlRow(writer, "CAUSED BY", cause);
+            cause = cause.getCause();
+        }
+        writer.write("</table>\n");
+    }
+
+    private void htmlRow(Writer writer, String tag, Object value)
+            throws IOException {
+        writer.write("<tr><th>");
+        writer.write(tag);
+        writer.write(":</th><td>");
+        if (value == null)
+            writer.write("-");
+        else
+            writer.write(StringUtil.sanitizeXmlString(value.toString()));
+        writer.write("</td></tr>\n");
     }
 
 }
