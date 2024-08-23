@@ -38,6 +38,9 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public interface TabularSerializer {
 
+    /**
+     * Value object containing data related to a cell to be exported.
+     */
     class CellData {
 
         final public String columnName;
@@ -53,10 +56,25 @@ public interface TabularSerializer {
         }
     }
 
+    /**
+     * Method to encapsulate start of file processing.
+     *
+     * @param options exporter options as a JsonNode
+     */
     void startFile(JsonNode options);
 
+    /**
+     * End of file processing for the export
+     */
     void endFile();
 
-    // FIXME: This needs a way to signal errors to the caller
+    /**
+     * Add one row of cells to the export.
+     *
+     * @param cells
+     * @param isHeader
+     *
+     * FIXME: This needs a way to signal errors to the caller
+     */
     void addRow(List<CellData> cells, boolean isHeader);
 }

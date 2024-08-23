@@ -40,22 +40,43 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Interface for functions. When a function is called, its arguments have already been evaluated down into non-error
+ * Interface implemented by all GREL functions. When a function is called, its arguments have already been evaluated down into non-error
  * values.
  */
 public interface Function {
 
-    public Object call(Properties bindings, Object[] args);
+    /**
+     * Invoke the function with the given variable bindings and arguments and return the result.
+     *
+     * @param bindings bindings for all defined variables and pseudovariables
+     * @param parameters parameters for arguments being passed in by the caller
+     * @return return value as one of our internal datatypes
+     */
+    Object call(Properties bindings, Object[] parameters);
 
+    /**
+     * Returns a natural language description of the function to be used in online help.
+     *
+     * @return string containing the description.
+     */
     @JsonProperty("description")
-    public String getDescription();
+    String getDescription();
 
+    /**
+     * Returns a natural language description of the parameters taken by the function.
+     * @return string containing the description of the parameters.
+     */
     @JsonProperty("params")
     @JsonInclude(Include.NON_EMPTY)
-    default public String getParams() {
+    default String getParams() {
         return "";
     }
 
+    /**
+     * Returns a natural language description of the return value of the function.
+     *
+     * @return string containing the description of the return value
+     */
     @JsonProperty("returns")
-    public String getReturns();
+    String getReturns();
 }

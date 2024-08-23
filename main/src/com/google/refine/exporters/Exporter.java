@@ -33,6 +33,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.refine.exporters;
 
+/**
+ * Interface implemented by all exporters by implementing one of the two
+ * subclasses {@link StreamExporter} or {@link WriterExporter}.
+ */
 public interface Exporter {
 
     /**

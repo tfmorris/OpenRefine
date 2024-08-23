@@ -47,19 +47,47 @@ import com.google.refine.expr.Evaluable;
  */
 public interface Control {
 
-    public Object call(Properties bindings, Evaluable[] args);
+    /**
+     * Invoke this control with the given arguments and the variable bindings.
+     *
+     * @param bindings variable bindings to be used for this invocation.
+     * @param arguments arguments to be used for this invocation
+     * @return return value as one of our data types or an {@link com.google.refine.expr.EvalError}
+     */
+    public Object call(Properties bindings, Evaluable[] arguments);
 
-    public String checkArguments(Evaluable[] args);
+    /**
+     * Check argument count and types for validity, but does not evaluate them.
+     *
+     * @param arguments arguments to be checked
+     * @return an error string if any problems are found or null if everything is correct
+     */
+    public String checkArguments(Evaluable[] arguments);
 
+    /**
+     * Return a natural language description of the control to be used in online help.
+     *
+     * @return string containing the localized description
+     */
     @JsonProperty("description")
     public String getDescription();
 
+    /**
+     * Return a brief description of name and type for all arguments.
+     *
+     * @return a single localized string describing all arguments.
+     */
     @JsonProperty("params")
     @JsonInclude(Include.NON_EMPTY)
     default public String getParams() {
         return "";
     }
 
+    /**
+     * Return the type of the return value as a localized string, to be used in online help.
+     *
+     * @return a localized string describing the type of the return value.
+     */
     @JsonProperty("returns")
     public String getReturns();
 }

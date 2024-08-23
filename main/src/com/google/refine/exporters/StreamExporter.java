@@ -40,8 +40,20 @@ import java.util.Properties;
 import com.google.refine.browsing.Engine;
 import com.google.refine.model.Project;
 
+/**
+ * Interface implemented by exporters which write to an OutputStream (typically binary formats like XLS).
+ */
 public interface StreamExporter extends Exporter {
 
+    /**
+     * Export a project with the given exporter options and engine (facets) configuration to the given OutputStream.
+     *
+     * @param project the project to be exported
+     * @param options exporter option settings (the options are defined by the exporter itself)
+     * @param engine faceted engine configuration filtering the rows in the project
+     * @param outputStream output stream to export to
+     * @throws IOException
+     */
     public void export(Project project, Properties options, Engine engine, OutputStream outputStream) throws IOException;
 
 }

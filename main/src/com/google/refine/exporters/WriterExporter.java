@@ -40,8 +40,20 @@ import java.util.Properties;
 import com.google.refine.browsing.Engine;
 import com.google.refine.model.Project;
 
+/**
+ * Interface implemented by exporters which output to a Writer (typically text based formats).
+ */
 public interface WriterExporter extends Exporter {
 
+    /**
+     * Export a project with the given exporter options and engine (facets) configuration to the given writer.
+     *
+     * @param project the project to be exported
+     * @param options exporter option settings (the options are defined by the exporter itself)
+     * @param engine faceted engine configuration filtering the rows in the project
+     * @param writer writer to export to
+     * @throws IOException
+     */
     public void export(Project project, Properties options, Engine engine, Writer writer) throws IOException;
 
 }
