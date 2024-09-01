@@ -370,6 +370,27 @@
       <version>${jetty.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.optimaize.languagedetector</groupId>
+      <artifactId>language-detector</artifactId>
+      <version>0.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.parquet</groupId>
+      <artifactId>parquet-common</artifactId>
+      <version>${parquet.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.parquet</groupId>
+      <artifactId>parquet-avro</artifactId>
+      <version>${parquet.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-client</artifactId>
+      <version>3.4.0</version>
+    </dependency>
+
     <!-- test dependencies -->
 
     <dependency>
