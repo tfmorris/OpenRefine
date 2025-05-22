@@ -165,19 +165,27 @@ public class FixedWidthImporterTests extends ImporterTest {
     }
 
     @Test
-    public void testDeleteBlankColumns() throws IOException {
+    public void testDeleteEmptyColumns() throws IOException {
         String filename = "fixed-width-test-file-header-and-sample-row-with-empty-column.txt";
-        List<String> lines = List.of("012345green...."); // add blank column
+        List<String> lines = List.of(SAMPLE_ROW); // add blank column
         List<ObjectNode> fileRecords = prepareFileRecords(filename, lines);
 
         ObjectNode options = ParsingUtilities.mapper.createObjectNode();
-        ArrayNode columnNames = ParsingUtilities.mapper.createArrayNode();
-        columnNames.add("NDB_No");
-        columnNames.add("Shrt_Desc");
-        columnNames.add("Water");
-        JSONUtilities.safePut(options, "columnNames", columnNames);
-        ArrayNode columnWidths = ParsingUtilities.mapper.valueToTree(List.of(6, 9, 5));
+        ArrayNode columnWidths = ParsingUtilities.mapper.valueToTree(List.of(6, 0, 5, 0, 3));
         JSONUtilities.safePut(options, "columnWidths", columnWidths);
+
+        ArrayNode columnNames = ParsingUtilities.mapper.valueToTree(List.of("Col 1",
+        "Col 2",
+        "Col 3",
+        "Col 4",
+        "Col 5",
+        "Col 6"));
+        JSONUtilities.safePut(options, "columnNames", columnNames);
+
+        JSONUtilities.safePut(options, "ignoreLines", 0);
+        JSONUtilities.safePut(options, "headerLines", 1);
+        JSONUtilities.safePut(options, "skipDataLines", 0);
+        JSONUtilities.safePut(options, "limit", -1);
 
         JSONUtilities.safePut(options, "storeBlankCellsAsNulls", false);
         JSONUtilities.safePut(options, "storeBlankColumns", false); // rm blank columns
@@ -185,9 +193,11 @@ public class FixedWidthImporterTests extends ImporterTest {
         parse(SUT, fileRecords, options);
 
         // check expected columns are all included
-        Assert.assertEquals(project.columnModel.columns.size(), 2);
-        Assert.assertTrue(project.columnModel.getColumnNames().contains("NDB_No"));
-        Assert.assertTrue(project.columnModel.getColumnNames().contains("Shrt_Desc"));
+        Assert.assertEquals(project.columnModel.columns.size(), 4);
+        Assert.assertEquals(project.columnModel.columns.get(0).getName(), "Col 1");
+        Assert.assertEquals(project.columnModel.columns.get(1).getName(), "Col 3");
+        Assert.assertEquals(project.columnModel.columns.get(2).getName(), "Col 5");
+        Assert.assertEquals(project.columnModel.columns.get(3).getName(), "Col 6");
     }
 
     @Test
