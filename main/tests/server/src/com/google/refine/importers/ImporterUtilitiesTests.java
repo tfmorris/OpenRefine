@@ -39,6 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -207,9 +208,30 @@ public class ImporterUtilitiesTests extends RefineTest {
         Assert.assertEquals(project.columnModel.columns.get(2).getName(), "Column 3");
 
         // This will mock the situation of deleting empty columns(col2&col4)
+        TabularImportingParserBase.deleteEmptyColumns(columnsHasData, project);
+        Assert.assertEquals(project.columnModel.columns.get(0).getName(), "Column 1");
+        Assert.assertEquals(project.columnModel.columns.get(1).getName(), "Column 3");
+        Assert.assertEquals(project.columnModel.columns.get(2).getName(), "Column 5");
+    }
+
+    @Test
+    public void testDeleteEmptyColumnsUtility() throws ModelException {
+        Project project = new Project();
+        // Set up column names in project
+        // NOTE: We can't use List.of here because setupColumns requires a mutable list
+        List<String> columnNames = Arrays.asList(new String[] {"Column 1", "Column 2", "Column 3", "Column 4", "Column 5"});
+        boolean[] columnsHasData = new boolean[] {true, false, true, false, true};
+
+        ImporterUtilities.setupColumns(project, columnNames);
+        Assert.assertEquals(project.columnModel.columns.get(0).getName(), "Column 1");
+        Assert.assertEquals(project.columnModel.columns.get(1).getName(), "Column 2");
+        Assert.assertEquals(project.columnModel.columns.get(2).getName(), "Column 3");
+
+        // This will mock the situation of deleting empty columns(col2&col4)
         ImporterUtilities.deleteEmptyColumns(project, columnsHasData);
         Assert.assertEquals(project.columnModel.columns.get(0).getName(), "Column 1");
         Assert.assertEquals(project.columnModel.columns.get(1).getName(), "Column 3");
         Assert.assertEquals(project.columnModel.columns.get(2).getName(), "Column 5");
     }
+
 }
