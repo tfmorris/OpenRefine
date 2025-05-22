@@ -38,7 +38,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -105,7 +104,7 @@ abstract public class ImportingParserBase implements ImportingParser {
             }
         }
 
-        // if user doesn't choose 'storeBlankColumns', delete all empty columns.
+        // if user sets 'storeBlankColumns' to False, delete all empty columns.
         boolean storeBlankColumns = JSONUtilities.getBoolean(options, "storeBlankColumns", true);
         if (!storeBlankColumns) {
             deleteBlankColumns(project, exceptions);
@@ -252,21 +251,24 @@ abstract public class ImportingParserBase implements ImportingParser {
     }
 
     private static void deleteBlankColumns(Project project, List<Exception> exceptions) {
-        // Determine if there is data in each column
-        List<Boolean> columnsHasData = new ArrayList<>();
+        // TODO: Verify that all importers correctly set MaxCellIndex since we depend on it
+        boolean[] columnsHasData = new boolean[project.columnModel.getMaxCellIndex() + 1];
         int rowSize = 0;
+        int firstCol = -1;
+        int lastCol = columnsHasData.length;
         for (Row row : project.rows) {
             rowSize = row.getCells().size();
-
-            // TODO: Can we make this more efficient?
-            // It's only inside this loop for the case where we have an extra unexpected cell in a row
-            while (rowSize >= columnsHasData.size()) {
-                columnsHasData.add(Boolean.FALSE); // init every col as empty
-            }
-
-            for (int i = 0; i < rowSize; i++) {
-                if (!row.isCellBlank(i)) {
-                    columnsHasData.set(i, Boolean.TRUE); // only if an entry is found, set col to hasData
+            for (int i = firstCol + 1; i < lastCol; i++) {
+                // Only check value if we haven't already found data in this column
+                if (!columnsHasData[i] && !row.isCellBlank(i)) {
+                    columnsHasData[i] = true;
+                    // Shrink our indexing limits from either end to minimize checking needed
+                    if (firstCol == i - 1) {
+                        firstCol = i;
+                    }
+                    if (lastCol == i + 1) {
+                        lastCol = i;
+                    }
                 }
             }
         }

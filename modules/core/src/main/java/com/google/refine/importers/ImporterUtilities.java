@@ -165,6 +165,11 @@ public class ImporterUtilities {
         }
     }
 
+    /**
+     *
+     * @param project the test project
+     * @param columnNames a MUTABLE list of column names which will be updated to enforce uniqueness, etc rules
+     */
     static public void setupColumns(Project project, List<String> columnNames) {
         Map<String, Integer> nameToIndex = new HashMap<String, Integer>();
         for (int c = 0; c < columnNames.size(); c++) {
@@ -199,19 +204,17 @@ public class ImporterUtilities {
     }
 
     /**
+     * Delete columns with columnsHasData == false
+     *
      * @param columnsHasData
      *            Record if there is data in each column( false:null;true:has data)
      */
-    static public void deleteEmptyColumns(Project project, List<Boolean> columnsHasData) throws ModelException {
-        // skip, if no columns to delete
-        if (columnsHasData.isEmpty() || columnsHasData.stream().allMatch(Boolean.TRUE::equals)) {
-            return;
-        }
+    static void deleteEmptyColumns(Project project, boolean[] columnsHasData) throws ModelException {
 
         project.columnModel.update(); // make sure all our cell indexes are up to date
-        for (int c = 0; c < columnsHasData.size(); c++) {
-            if (Boolean.FALSE.equals(columnsHasData.get(c))) {
-                // remove column from columns
+        for (int c = 0; c < columnsHasData.length; c++) {
+            if (!columnsHasData[c]) {
+                // remove won't affect our iteration as long as we don't call update()
                 project.columnModel.removeColumnByCellIndex(c);
             }
         }
