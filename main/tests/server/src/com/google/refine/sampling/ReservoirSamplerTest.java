@@ -13,16 +13,15 @@ import org.testng.annotations.Test;
 
 public class ReservoirSamplerTest {
 
-    private final ReservoirSampler sampler = new ReservoirSampler();
-
     @Test
     public void testBasicSampling() {
         // given
         int reservoirSize = 10;
+        ReservoirSampler sampler = new ReservoirSampler(-1, reservoirSize);
         List<Integer> list = createList(100);
 
         // when
-        List<Integer> sample = sampler.sample(list, reservoirSize);
+        List<Integer> sample = sample(sampler, list);
 
         // then
         Assert.assertEquals(sample.size(), reservoirSize); // sample should always be size of reservoir
@@ -41,7 +40,8 @@ public class ReservoirSamplerTest {
         long[] observedCounts = new long[list.size()];
         List<Integer> sample;
         for (int run = 0; run < runs; run++) {
-            sample = sampler.sample(list, reservoirSize);
+            ReservoirSampler sampler = new ReservoirSampler(-1, reservoirSize);
+            sample = sample(sampler, list);
             for (int sampledItem : sample) {
                 observedCounts[sampledItem]++;
             }
@@ -65,10 +65,11 @@ public class ReservoirSamplerTest {
     public void testSamplingWithListSizeSmallerThenReservoirSize() {
         // given
         int reservoirSize = 100;
+        ReservoirSampler sampler = new ReservoirSampler(-1, reservoirSize);
         List<Integer> list = createList(10);
 
         // when
-        List<Integer> sample = sampler.sample(list, reservoirSize);
+        List<Integer> sample = sample(sampler, list);
 
         // then reservoir = original list
         Assert.assertEquals(sample.size(), list.size());
@@ -79,10 +80,11 @@ public class ReservoirSamplerTest {
     public void testSamplingWithListSizeEqualToReservoirSize() {
         // given
         int reservoirSize = 10;
+        ReservoirSampler sampler = new ReservoirSampler(-1, reservoirSize);
         List<Integer> list = createList(reservoirSize);
 
         // when
-        List<Integer> sample = sampler.sample(list, reservoirSize);
+        List<Integer> sample = sample(sampler, list);
 
         // then reservoir = original list
         Assert.assertEquals(sample.size(), reservoirSize);
@@ -93,10 +95,11 @@ public class ReservoirSamplerTest {
     public void testSamplingWithReservoirSizeZero() {
         // given
         int reservoirSize = 0;
+        ReservoirSampler sampler = new ReservoirSampler(-1, reservoirSize);
         List<Integer> list = createList(10);
 
         // when
-        List<Integer> sample = sampler.sample(list, reservoirSize);
+        List<Integer> sample = sample(sampler, list);
 
         // then reservoir should be empty
         Assert.assertTrue(sample.isEmpty());
@@ -106,10 +109,7 @@ public class ReservoirSamplerTest {
     public void testSamplingWithNegativeReservoirSize() {
         // given
         int reservoirSize = -1;
-        List<Integer> list = createList(10);
-
-        // when
-        sampler.sample(list, reservoirSize);
+        ReservoirSampler sampler = new ReservoirSampler(-1, reservoirSize);
 
         // then throw IllegalArgumentException (see test header)
     }
@@ -118,10 +118,11 @@ public class ReservoirSamplerTest {
     public void testSamplingOnEmptyList() {
         // given
         int reservoirSize = 10;
+        ReservoirSampler sampler = new ReservoirSampler(-1, reservoirSize);
         List<Integer> list = new ArrayList<>();
 
         // when
-        List<Integer> sample = sampler.sample(list, reservoirSize);
+        List<Integer> sample = sample(sampler, list);
 
         // then reservoir should be empty
         Assert.assertTrue(sample.isEmpty());
@@ -132,5 +133,23 @@ public class ReservoirSamplerTest {
         return IntStream.range(0, range)
                 .boxed()
                 .collect(Collectors.toList());
+    }
+
+    private List<Integer> sample(Sampler sampler, List<Integer> target) {
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < target.size(); i++) {
+            int value = sampler.nextIndex();
+            if (value == Sampler.END) {
+                break;
+            }
+            if (value != Sampler.SKIP) {
+                if (value == result.size()) {
+                    result.add(target.get(i));
+                } else {
+                    result.set(value, target.get(i));
+                }
+            }
+        }
+        return result;
     }
 }

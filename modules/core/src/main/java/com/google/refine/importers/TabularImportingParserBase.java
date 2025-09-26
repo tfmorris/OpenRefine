@@ -49,6 +49,9 @@ import com.google.refine.model.Column;
 import com.google.refine.model.ModelException;
 import com.google.refine.model.Project;
 import com.google.refine.model.Row;
+import com.google.refine.sampling.DefaultSampler;
+import com.google.refine.sampling.Sampler;
+import com.google.refine.sampling.SamplerRegistry;
 import com.google.refine.util.JSONUtilities;
 
 abstract public class TabularImportingParserBase extends ImportingParserBase {
@@ -118,6 +121,7 @@ abstract public class TabularImportingParserBase extends ImportingParserBase {
         int ignoreLines = JSONUtilities.getInt(options, "ignoreLines", -1);
         int headerLines = JSONUtilities.getInt(options, "headerLines", 1);
         int skipDataLines = JSONUtilities.getInt(options, "skipDataLines", 0);
+        // TODO: Document difference between these two limits
         int limit2 = JSONUtilities.getInt(options, "limit", -1);
         if (limit > 0) {
             if (limit2 > 0) {
@@ -132,11 +136,16 @@ abstract public class TabularImportingParserBase extends ImportingParserBase {
         boolean storeBlankCellsAsNulls = JSONUtilities.getBoolean(options, "storeBlankCellsAsNulls", true);
         boolean trimStrings = JSONUtilities.getBoolean(options, "trimStrings", false);
 
-        List<String> columnNames = new ArrayList<String>();
+        List<String> columnNames = new ArrayList<>();
         boolean hasOurOwnColumnNames = headerLines > 0;
 
         List<Object> cells = null;
         int rowsWithData = 0;
+        int rowIndex = 0;
+
+        String method = JSONUtilities.getString(options, "samplingMethod", "");
+        double percentage = Integer.parseInt(JSONUtilities.getString(options, "percentage", "100")) / 100.0;
+        Sampler sampler = "".equals(method) ? new DefaultSampler(limit2, 1) : SamplerRegistry.getSampler(method, limit2, 100.0);
 
         try {
             while (!job.canceled && (cells = reader.getNextRowOfCells()) != null) {
@@ -170,9 +179,11 @@ abstract public class TabularImportingParserBase extends ImportingParserBase {
                     Row row = new Row(cells.size());
 
                     if (storeBlankRows || cells.size() > 0) {
+                        // TODO: what about blank rows
                         rowsWithData++;
                     }
 
+                    // TODO: Not sure that the way that this interacts with blank row handling is logical
                     if (skipDataLines <= 0 || rowsWithData > skipDataLines) {
                         boolean rowHasData = false;
 
@@ -207,11 +218,20 @@ abstract public class TabularImportingParserBase extends ImportingParserBase {
                         }
 
                         if (rowHasData || storeBlankRows) {
-                            project.rows.add(row);
-                        }
-
-                        if (limit2 > 0 && project.rows.size() >= limit2) {
-                            break;
+                            // TODO: Does a blank row count towards sampling totals? (no, in post hoc sampling)
+                            rowIndex = sampler.nextIndex();
+                            if (rowIndex == Sampler.END) {
+                                break;
+                            }
+                            if (rowIndex == Sampler.SKIP) {
+                                continue;
+                            }
+                            // TODO: Check this logic against the tests
+                            if (rowIndex >= project.rows.size()) {
+                                project.rows.add(row);
+                            } else {
+                                project.rows.set(rowIndex, row);
+                            }
                         }
                     }
                 }

@@ -1,39 +1,38 @@
 
 package com.google.refine.sampling;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 /**
  * Bernoulli Sampling selects a subset of items from a list or sequence such that each item has an equal probability of
  * being chosen, independently of the others.
  */
-public class BernoulliSampler implements Sampler {
+public class BernoulliSampler extends AbstractSampler implements Sampler {
 
-    public <T> List<T> sample(List<T> list, int percentage) {
-        // validate input
-        if (percentage < 0 || percentage > 100) {
+    private int index = 0;
+    private Random random = new Random();
+    private double percentage;
+
+    public BernoulliSampler(Integer limitLines, Number percentage) {
+        super(limitLines, percentage);
+        double percent = percentage.doubleValue();
+        if (percent < 0.0 || percent > 1.0) {
             throw new IllegalArgumentException("Sampling factor (percentage) must be between 0 and 100");
         }
+        this.percentage = percent;
+    }
 
-        // cases in which a pass over data is not needed
-        if (percentage == 100) {
-            return new ArrayList<>(list); // short-circuit: return original list
+    /**
+     * @return
+     */
+    @Override
+    public int nextIndex() {
+        if (percentage == 0.0) {
+            return END;
         }
-        if (percentage == 0 || list.isEmpty()) {
-            return new ArrayList<>(); // short-circuit: empty list
+        if (random.nextDouble() <= percentage || percentage == 1.0) {
+            return index++;
         }
-
-        // sample
-        List<T> sample = new ArrayList<>();
-        Random random = new Random();
-        for (T element : list) {
-            if (random.nextInt(100) < percentage) {
-                sample.add(element);
-            }
-        }
-
-        return sample;
+        return SKIP;
     }
 }

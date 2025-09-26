@@ -13,16 +13,15 @@ import org.testng.annotations.Test;
 
 public class BernoulliSamplerTest {
 
-    private final BernoulliSampler sampler = new BernoulliSampler();
-
     @Test
     public void testBasicSampling() {
         // given
         int percentage = 10;
+        BernoulliSampler sampler = new BernoulliSampler(-1, percentage / 100.0);
         List<Integer> list = createList(100);
 
         // when
-        List<Integer> sample = sampler.sample(list, percentage);
+        List<Integer> sample = sample(sampler, list);
 
         // then
         Assert.assertTrue(list.containsAll(sample)); // all elements in sample are taken from list
@@ -40,7 +39,8 @@ public class BernoulliSamplerTest {
         long[] observedCounts = new long[list.size()];
         List<Integer> sample;
         for (int run = 0; run < runs; run++) {
-            sample = sampler.sample(list, percentage);
+            BernoulliSampler sampler = new BernoulliSampler(-1, percentage / 100.0);
+            sample = sample(sampler, list);
             for (int sampledItem : sample) {
                 observedCounts[sampledItem]++;
             }
@@ -64,10 +64,11 @@ public class BernoulliSamplerTest {
     public void testSamplingWithPercentageZero() {
         // given
         int percentage = 0;
+        BernoulliSampler sampler = new BernoulliSampler(-1, percentage / 100.0);
         List<Integer> list = createList(10);
 
         // when
-        List<Integer> sample = sampler.sample(list, percentage);
+        List<Integer> sample = sample(sampler, list);
 
         // then sample should be empty
         Assert.assertTrue(sample.isEmpty());
@@ -77,10 +78,7 @@ public class BernoulliSamplerTest {
     public void testSamplingWithNegativePercentage() {
         // given
         int percentage = -1;
-        List<Integer> list = createList(10);
-
-        // when
-        sampler.sample(list, percentage);
+        BernoulliSampler sampler = new BernoulliSampler(-1, percentage / 100.0);
 
         // then throw IllegalArgumentException (see test header)
     }
@@ -89,10 +87,11 @@ public class BernoulliSamplerTest {
     public void testSamplingWithPercentageHundred() {
         // given
         int percentage = 100;
+        BernoulliSampler sampler = new BernoulliSampler(-1, percentage / 100.0);
         List<Integer> list = createList(100);
 
         // when
-        List<Integer> sample = sampler.sample(list, percentage);
+        List<Integer> sample = sample(sampler, list);
 
         // then
         Assert.assertEquals(sample, list);
@@ -102,10 +101,7 @@ public class BernoulliSamplerTest {
     public void testSamplingWithPercentageOverHundred() {
         // given
         int percentage = 500;
-        List<Integer> list = createList(10);
-
-        // when
-        sampler.sample(list, percentage);
+        BernoulliSampler sampler = new BernoulliSampler(-1, percentage / 100.0);
 
         // then throw IllegalArgumentException (see test header)
     }
@@ -114,10 +110,11 @@ public class BernoulliSamplerTest {
     public void testSamplingOnEmptyList() {
         // given empty list
         int percentage = 10;
+        BernoulliSampler sampler = new BernoulliSampler(-1, percentage / 100.0);
         List<Integer> list = new ArrayList<>();
 
         // when
-        List<Integer> sample = sampler.sample(list, percentage);
+        List<Integer> sample = sample(sampler, list);
 
         // then sample should be empty
         Assert.assertTrue(sample.isEmpty());
@@ -128,5 +125,19 @@ public class BernoulliSamplerTest {
         return IntStream.range(0, range)
                 .boxed()
                 .collect(Collectors.toList());
+    }
+
+    private List<Integer> sample(Sampler sampler, List<Integer> target) {
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < target.size(); i++) {
+            int value = sampler.nextIndex();
+            if (value == Sampler.END) {
+                break;
+            }
+            if (value != Sampler.SKIP) {
+                result.add(target.get(i));
+            }
+        }
+        return result;
     }
 }

@@ -153,6 +153,7 @@ public class XmlImportUtilities extends TreeImportUtilities {
             while (parser.hasNext()) {
                 Token eventType = parser.next();
                 if (eventType == Token.StartEntity) {
+                    // TODO: This is where record count is incremented and sampling would likely go
                     findRecord(project, parser, recordPath, 0, rootColumnGroup, limit--, trimStrings, storeEmptyStrings,
                             guessDataTypes);
                 }

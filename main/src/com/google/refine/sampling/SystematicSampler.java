@@ -1,26 +1,36 @@
 
 package com.google.refine.sampling;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Systematic sampling selects every k-th item from a list or sequence.
  */
-public class SystematicSampler implements Sampler {
+public class SystematicSampler extends AbstractSampler implements Sampler {
 
-    public <T> List<T> sample(List<T> list, int stepSize) {
-        // validate input
+    private int index = 0;
+    private int count = 0;
+    private int stepSize;
+
+    public SystematicSampler(Integer limit, Integer stepSize) {
+        super(limit, stepSize);
         if (stepSize <= 0) {
-            throw new IllegalArgumentException("Sampling factor (step size) can not be smaller than or equal to zero");
+            throw new IllegalArgumentException("Sampling factor (step size) can not be less than or equal to zero");
         }
+        this.stepSize = stepSize;
+    }
 
-        // sample
-        List<T> sample = new ArrayList<>();
-        for (int i = 0; i < list.size(); i += stepSize) {
-            sample.add(list.get(i));
+    /**
+     * @return
+     */
+    @Override
+    public int nextIndex() {
+        count++;
+        if (limitLines > 0 && count >= limitLines) {
+            return END;
         }
-
-        return sample;
+        if ((count - 1) % stepSize == 0) {
+            return index++;
+        } else {
+            return Sampler.SKIP;
+        }
     }
 }

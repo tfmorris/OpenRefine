@@ -1,40 +1,42 @@
 
 package com.google.refine.sampling;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 /**
  * Reservoir sampling selects k items uniformly at random from a list or sequence.
  */
-public class ReservoirSampler implements Sampler {
+public class ReservoirSampler extends AbstractSampler implements Sampler {
 
-    public <T> List<T> sample(List<T> list, int reservoirSize) {
-        // validate input
+    private final int reservoirSize;
+    private int index = 0;
+    private int count = -1;
+    private Random random = new Random();
+
+    public ReservoirSampler(Integer limit, Integer reservoirSize) {
+        super(limit, reservoirSize);
         if (reservoirSize < 0) {
-            throw new IllegalArgumentException("Sampling factor (reservoir size) can not be smaller than zero");
+            // TODO: Do we *really* want to allow a reservoir size of zero?
+            throw new IllegalArgumentException("Sampling factor (reservoir size) must be greater than 0.");
         }
+        this.reservoirSize = reservoirSize;
+    }
 
-        // cases in which a pass over data is not needed
-        if (reservoirSize >= list.size()) {
-            return new ArrayList<>(list); // short-circuit: return original list
-        }
+    /**
+     * @return
+     */
+    @Override
+    public int nextIndex() {
         if (reservoirSize == 0) {
-            return new ArrayList<>(); // short-circuit: empty list
+            return END;
         }
-
-        // sample
-        List<T> sample = list.stream().limit(reservoirSize).collect(Collectors.toList()); // init reservoir
-        Random random = new Random();
-        for (int i = reservoirSize; i < list.size(); i++) {
-            int j = random.nextInt(i + 1);
-            if (j < reservoirSize) {
-                sample.set(j, list.get(i));
-            }
+        if (++count < reservoirSize) {
+            return index++;
         }
-
-        return sample;
+        int replaceIndex = random.nextInt(count);
+        if (replaceIndex < reservoirSize) {
+            return replaceIndex;
+        }
+        return SKIP;
     }
 }
