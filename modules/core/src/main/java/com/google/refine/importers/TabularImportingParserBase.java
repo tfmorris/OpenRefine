@@ -38,6 +38,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.CharMatcher;
 
@@ -143,9 +144,22 @@ abstract public class TabularImportingParserBase extends ImportingParserBase {
         int rowsWithData = 0;
         int rowIndex = 0;
 
-        String method = JSONUtilities.getString(options, "samplingMethod", "");
-        double percentage = Integer.parseInt(JSONUtilities.getString(options, "percentage", "100")) / 100.0;
-        Sampler sampler = "".equals(method) ? new DefaultSampler(limit2, 1) : SamplerRegistry.getSampler(method, limit2, 100.0);
+        Sampler sampler = null;
+        JsonNode sampling = JSONUtilities.getObject(options, "sampling");
+        if (sampling != null) {
+            String method = JSONUtilities.getString(sampling, "method", "");
+            double percentage = Integer.parseInt(JSONUtilities.getString(sampling, "factor", "100"));
+            if ("bernoulli".equals(method)) { // TODO: make this a constant
+                percentage = percentage / 100.0;
+            }
+
+            if (!"".equals(method)) {
+                sampler = SamplerRegistry.getSampler(method, limit2, percentage);
+            }
+        }
+        if (sampler == null) {
+            sampler = new DefaultSampler(limit2, 1);
+        }
 
         try {
             while (!job.canceled && (cells = reader.getNextRowOfCells()) != null) {

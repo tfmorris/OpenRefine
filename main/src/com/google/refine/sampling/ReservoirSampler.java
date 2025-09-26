@@ -13,13 +13,13 @@ public class ReservoirSampler extends AbstractSampler implements Sampler {
     private int count = -1;
     private Random random = new Random();
 
-    public ReservoirSampler(Integer limit, Integer reservoirSize) {
+    public ReservoirSampler(Integer limit, Number reservoirSize) {
         super(limit, reservoirSize);
-        if (reservoirSize < 0) {
+        if (reservoirSize.intValue() < 0) {
             // TODO: Do we *really* want to allow a reservoir size of zero?
             throw new IllegalArgumentException("Sampling factor (reservoir size) must be greater than 0.");
         }
-        this.reservoirSize = reservoirSize;
+        this.reservoirSize = reservoirSize.intValue();
     }
 
     /**

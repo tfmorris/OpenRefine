@@ -10,12 +10,12 @@ public class SystematicSampler extends AbstractSampler implements Sampler {
     private int count = 0;
     private int stepSize;
 
-    public SystematicSampler(Integer limit, Integer stepSize) {
+    public SystematicSampler(Integer limit, Number stepSize) {
         super(limit, stepSize);
-        if (stepSize <= 0) {
+        if (stepSize.intValue() <= 0) {
             throw new IllegalArgumentException("Sampling factor (step size) can not be less than or equal to zero");
         }
-        this.stepSize = stepSize;
+        this.stepSize = stepSize.intValue();
     }
 
     /**

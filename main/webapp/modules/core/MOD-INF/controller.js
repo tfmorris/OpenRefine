@@ -334,9 +334,9 @@ function registerImporting() {
 
 function registerSamplers() {
    var SR = Packages.com.google.refine.sampling.SamplerRegistry;
-   SR.registerSampler("bernoulli", new Packages.com.google.refine.sampling.BernoulliSampler());
-   SR.registerSampler("reservoir", new Packages.com.google.refine.sampling.ReservoirSampler());
-   SR.registerSampler("systematic", new Packages.com.google.refine.sampling.SystematicSampler());
+   SR.registerSampler("bernoulli", Packages.com.google.refine.sampling.BernoulliSampler);
+   SR.registerSampler("reservoir", Packages.com.google.refine.sampling.ReservoirSampler);
+   SR.registerSampler("systematic", Packages.com.google.refine.sampling.SystematicSampler);
 }
 
 function registerExporters() {
